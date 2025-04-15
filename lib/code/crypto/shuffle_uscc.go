@@ -3,8 +3,8 @@ package crypto
 import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/atype"
+	"github.com/aarioai/golib/enumz"
 	"github.com/aarioai/golib/lib/code/stdfmt"
-	"github.com/aarioai/golib/libenum"
 )
 
 type UsccCipher SidCipher
@@ -21,13 +21,13 @@ func ValidateUSCCEncryptKeys[T string | []byte](keys ...T) {
 // 第3-8位：登记管理机关行政区划码，表示该组织登记管理机关所在的行政区划。
 // 第9-17位：主体标识码，用于唯一标识一个法人或其他组织。
 // 第18位：校验码，用于校验整个代码的正确性。
-func ShuffleEncryptUSCC(s string, key []byte) (t libenum.UsccType, distri atype.Distri, cryptogram UsccCipher, err error) {
+func ShuffleEncryptUSCC(s string, key []byte) (t enumz.UsccType, distri atype.Distri, cryptogram UsccCipher, err error) {
 
 	if s, err = stdfmt.ValidateUSCC(s); err != nil {
 		return
 	}
 	var ok bool
-	t, ok = libenum.ToUsccType(s[0:2])
+	t, ok = enumz.ToUsccType(s[0:2])
 	if !ok {
 		err = ae.ErrInvalidInput
 		return
@@ -47,7 +47,7 @@ func ShuffleEncryptUSCC(s string, key []byte) (t libenum.UsccType, distri atype.
 	return
 }
 
-func (c UsccCipher) Desensitize(t libenum.UsccType, distri atype.Distri) string {
+func (c UsccCipher) Desensitize(t enumz.UsccType, distri atype.Distri) string {
 	if c == "" {
 		return ""
 	}
@@ -59,7 +59,7 @@ func (c UsccCipher) String() string {
 	return string(c)
 }
 
-func (c UsccCipher) Decrypt(t libenum.UsccType, distri atype.Distri, key []byte) (string, error) {
+func (c UsccCipher) Decrypt(t enumz.UsccType, distri atype.Distri, key []byte) (string, error) {
 	if c == "" {
 		return "", nil
 	}

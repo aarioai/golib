@@ -1,4 +1,4 @@
-package libenum
+package enumz
 
 import (
 	"encoding/json"

@@ -3,8 +3,11 @@ module github.com/aarioai/golib
 go 1.23.6
 
 require (
-	github.com/aarioai/airis v0.1.177
+	github.com/aarioai/airis v0.1.179
 	github.com/gobwas/glob v0.2.3
+	github.com/google/go-querystring v1.1.0
+	github.com/kataras/iris/v12 v12.2.11
+	github.com/mssola/useragent v1.0.0
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0
 )
 
@@ -26,7 +29,6 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/blocks v0.0.11 // indirect
 	github.com/kataras/golog v0.1.12 // indirect
-	github.com/kataras/iris/v12 v12.2.10 // indirect
 	github.com/kataras/pio v0.0.13 // indirect
 	github.com/kataras/sitemap v0.0.6 // indirect
 	github.com/kataras/tunnel v0.0.4 // indirect

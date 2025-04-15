@@ -4,8 +4,8 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/atype"
 	"github.com/aarioai/airis/pkg/types"
+	"github.com/aarioai/golib/enumz"
 	"github.com/aarioai/golib/lib/code/stdfmt"
-	"github.com/aarioai/golib/libenum"
 	"strings"
 )
 
@@ -40,7 +40,7 @@ func ValidateLawyerCertEncryptKeys[T string | []byte](keys ...T) {
 // 　　1（律师执业证文本）11（北京市）02（延庆县）2008（首次批准律师执业年度）1（专职律师）0（男）000003（假 设的序列号）． 因律师流动、变更执业证类别等需要更改律师执业证号的’只更改变化的要素，其他要素不变.
 // 　　假设一,王宇律师从北京市延庆县转到广东省深训市执业’只将北京市（11）、延庆县（02）的代码分别更改为广东省（44）、深训市（03）的代码’其他不变。王宇转到深训市执业后的代码应当为：14403200810000003 ，1（律师执业证）44（广东省）03（深训市）2008（首次批准律师执业年度）1（专职律师）0（男）000003（假设的序列号）。
 // 　　假设二,王宇律师由专职律师转为兼职律师’只将专职代码（1）更改为兼职代码（2）’其他不变°王宇律师由专职律师转为兼职律师后的代码应当为：11102200820000003 ，1（律师执业证）11（北京市）02（延庆县）2008（批准律师执业年度）2（兼职律师）0（男）000003（假设的序列号）。
-func ShuffleEncryptLawyerLic(s string, key []byte) (libenum.LawyerLicType, atype.Dist, atype.Year, LawyerLicCipher, error) {
+func ShuffleEncryptLawyerLic(s string, key []byte) (enumz.LawyerLicType, atype.Dist, atype.Year, LawyerLicCipher, error) {
 	ValidateKeyLen(key, LawyerLicCipherKeyMinLen)
 	var err error
 	if s, err = stdfmt.ValidateLawyerLic(s); err != nil {
@@ -60,19 +60,19 @@ func ShuffleEncryptLawyerLic(s string, key []byte) (libenum.LawyerLicType, atype
 		return 0, 0, 0, "", err
 	}
 	cryptogram := LawyerLicCipher(ciphertext)
-	return libenum.LawyerLicType(licType), atype.Dist(dist), atype.Year(year), cryptogram, nil
+	return enumz.LawyerLicType(licType), atype.Dist(dist), atype.Year(year), cryptogram, nil
 }
 func (c LawyerLicCipher) String() string {
 	return string(c)
 }
-func (c LawyerLicCipher) Desensitize(t libenum.LawyerLicType, d atype.Dist, y atype.Year) string {
+func (c LawyerLicCipher) Desensitize(t enumz.LawyerLicType, d atype.Dist, y atype.Year) string {
 	if c == "" {
 		return ""
 	}
 	text := SidCipher(c).Desensitize()
 	return "1" + d.String() + y.String() + t.String() + text
 }
-func (c LawyerLicCipher) Decrypt(t libenum.LawyerLicType, d atype.Dist, y atype.Year, key []byte) (string, error) {
+func (c LawyerLicCipher) Decrypt(t enumz.LawyerLicType, d atype.Dist, y atype.Year, key []byte) (string, error) {
 	if c == "" {
 		return "", nil
 	}
@@ -89,12 +89,12 @@ func (c LawyerLicCipher) Decrypt(t libenum.LawyerLicType, d atype.Dist, y atype.
 // 第2-5位：4位发放年份
 // 第6-11位：6位地区
 // 第12-15位：4位该地区当年证书顺序编号
-func ShuffleEncryptLawyerCert(s string, key []byte) (libenum.LawyerCertType, atype.Year, atype.Distri, LawyerCertCipher, error) {
+func ShuffleEncryptLawyerCert(s string, key []byte) (enumz.LawyerCertType, atype.Year, atype.Distri, LawyerCertCipher, error) {
 	var err error
 	if s, err = stdfmt.ValidateLawyerCert(s); err != nil {
 		return 0, 0, 0, "", err
 	}
-	certType, ok := libenum.NewLawyerCertType(s[0])
+	certType, ok := enumz.NewLawyerCertType(s[0])
 	if !ok {
 		return 0, 0, 0, "", ae.ErrInvalidInput
 	}
@@ -110,7 +110,7 @@ func ShuffleEncryptLawyerCert(s string, key []byte) (libenum.LawyerCertType, aty
 	}
 	return certType, year, distri, LawyerCertCipher(ciphertext), nil
 }
-func (c LawyerCertCipher) Decrypt(t libenum.LawyerCertType, y atype.Year, d atype.Distri, key []byte) (string, error) {
+func (c LawyerCertCipher) Decrypt(t enumz.LawyerCertType, y atype.Year, d atype.Distri, key []byte) (string, error) {
 	if c == "" {
 		return "", nil
 	}
@@ -120,7 +120,7 @@ func (c LawyerCertCipher) Decrypt(t libenum.LawyerCertType, y atype.Year, d atyp
 	}
 	return t.String() + y.String() + d.String() + text, nil
 }
-func (c LawyerCertCipher) Desensitize(t libenum.LawyerCertType, y atype.Year, d atype.Distri) string {
+func (c LawyerCertCipher) Desensitize(t enumz.LawyerCertType, y atype.Year, d atype.Distri) string {
 	if c == "" {
 		return ""
 	}

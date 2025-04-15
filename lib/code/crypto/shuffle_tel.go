@@ -35,6 +35,7 @@ const (
 	telShiftSegmentItemMinLen = 6  // 每节至少6个数字，否则不利于混淆
 )
 
+// TelCipher CHAR(9)
 type TelCipher string
 
 type TelCipherText struct {
