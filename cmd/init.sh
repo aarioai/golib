@@ -21,6 +21,10 @@ handlePrivateRepo(){
     # 或使用长期存储（如 keychain）
     #git config --global credential.helper store
 
+    ## goland 配置
+    # Setting -> Go -> Go Modules -> Enable Go modules integration -> Environment -> GOPRIVATE=github.com/aarioai/golib
+    # 通过power shell 执行 git config --global url."https://aarioai:<token>@github.com/".insteadOf "https://github.com/"
+
 }
 
 main(){
