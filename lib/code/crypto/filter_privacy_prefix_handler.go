@@ -1,7 +1,7 @@
 package crypto
 
 import (
-	"github.com/aarioai/golib/lib/data"
+	"github.com/aarioai/golib/data"
 	"github.com/gobwas/glob/util/runes"
 	"slices"
 	"strings"
