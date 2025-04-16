@@ -9,7 +9,7 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/golib/enumz"
 	"github.com/aarioai/golib/lib/code/coding"
-	"github.com/aarioai/golib/sdk/auth/config"
+	"github.com/aarioai/golib/sdk/auth/configz"
 	"github.com/aarioai/golib/typez"
 	"math/rand"
 	"strconv"
@@ -191,7 +191,7 @@ func (s *Service) encryptUserToken(svc typez.Svc, uid, vuid uint64, ua enumz.UA,
 	//	return "", ae.NewE("bad uid: %d to encrypt user token", uid)
 	//}
 	if svc > 1679615 || !ua.Valid() {
-		return "", ae.NewE("encrypt parameter is out of range (%d, %d)", svc, ua)
+		return "", NewE("encrypt parameter is out of range (%d, %d)", svc, ua)
 	}
 
 	// 避免UID被侦察到总是不变；mock UID 会小于认证时间，这种情况暴露也无所谓
@@ -208,14 +208,14 @@ func (s *Service) encryptUserToken(svc typez.Svc, uid, vuid uint64, ua enumz.UA,
 	_factor := uPad(uint64(factor), 7)
 
 	var b bytes.Buffer
-	b.Grow(staffLength + len(config.UserTokenCryptMd5Key))
+	b.Grow(staffLength + len(configz.UserTokenCryptMd5Key))
 	b.Write(_svc)
 	b.Write(_xuid)
 	b.Write(_vuid)
 	b.Write(_ua)
 	b.Write(_authAt)
 	b.Write(_factor)
-	b.WriteString(config.UserTokenCryptMd5Key)
+	b.WriteString(configz.UserTokenCryptMd5Key)
 	h := md5.Sum(b.Bytes())
 	md5s := hex.EncodeToString(h[:])
 
@@ -227,7 +227,7 @@ func (s *Service) encryptUserToken(svc typez.Svc, uid, vuid uint64, ua enumz.UA,
 	atb.WriteString(md5s[0:userTokenMd5Len])
 	atb.Write(p)
 	atoken := atb.Bytes()
-	base := []byte(config.UserTokenShuffleBase)
+	base := []byte(configz.UserTokenShuffleBase)
 	err := coding.ShuffleEncrypt(atoken, userTokenBaseShift, base)
 	if err != nil {
 		return "", ae.NewError(err)
@@ -237,7 +237,7 @@ func (s *Service) encryptUserToken(svc typez.Svc, uid, vuid uint64, ua enumz.UA,
 }
 
 func (s *Service) DbgDecryptUserToken(ctx context.Context, token string) (svc typez.Svc, uid, vuid uint64, ua enumz.UA, psid string, authAt int64, expiresIn int64, factor int64, secureLogin bool, e *ae.Error) {
-	expiresIn = config.UserTokenTTLs
+	expiresIn = configz.UserTokenTTLs
 	svc, uid, vuid, ua, psid, authAt, factor, secureLogin, e = s.decryptUserToken(ctx, token)
 	return
 }
@@ -253,7 +253,7 @@ func (s *Service) decryptUserToken(ctx context.Context, atoken string) (svc type
 			token[i] = '_'
 		}
 	}
-	base := []byte(config.UserTokenCryptMd5Key)
+	base := []byte(configz.UserTokenCryptMd5Key)
 	err := coding.ShuffleDecrypt(token, userTokenBaseShift, base)
 	if err != nil {
 		e = ae.NewError(err)
@@ -271,14 +271,14 @@ func (s *Service) decryptUserToken(ctx context.Context, atoken string) (svc type
 	}
 
 	var b bytes.Buffer
-	b.Grow(staffLength + len(config.UserTokenCryptMd5Key))
+	b.Grow(staffLength + len(configz.UserTokenCryptMd5Key))
 	b.Write(_svc)
 	b.Write(_xuid)
 	b.Write(_vuid)
 	b.Write(_ua)
 	b.Write(_authAt)
 	b.Write(_factor)
-	b.WriteString(config.UserTokenCryptMd5Key)
+	b.WriteString(configz.UserTokenCryptMd5Key)
 	h := md5.Sum(b.Bytes())
 	md5s := hex.EncodeToString(h[:])
 	//s.app.Log.Debug(context.Background(), "decode: %s %s %s %s %s %s %s", string(_svc), string(_xuid), string(_vuid), string(_ua), string(_authAt), string(_factor), md5key)
@@ -296,7 +296,7 @@ func (s *Service) decryptUserToken(ctx context.Context, atoken string) (svc type
 		return
 	}
 	now := time.Now().Unix()
-	expiresIn := authAt + config.UserTokenTTLs + config.UserTokenTimeWindow - now
+	expiresIn := authAt + configz.UserTokenTTLs + configz.UserTokenTimeWindow - now
 	if expiresIn < 0 {
 		e = ae.ErrorUnauthorized
 		return

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/aarioai/airis/aa/aenum"
 	"github.com/aarioai/airis/pkg/types"
-	"github.com/aarioai/golib/sdk/sms/config"
+	"github.com/aarioai/golib/sdk/sms/configz"
 	"time"
 )
 
@@ -12,13 +12,13 @@ import (
 func (h *Cache) vericodeKey(pseudoId string, cn aenum.Country, phone string) string {
 	cs := types.FormatUint(cn)
 	account := cs + ":" + phone + ":" + pseudoId
-	return config.CachePrefix + "vericode:" + account
+	return configz.CachePrefix + "vericode:" + account
 }
 
 func (h *Cache) vericodeLimitKey(cn aenum.Country, phone string) string {
 	cs := types.FormatUint(cn)
 	account := cs + ":" + phone
-	return config.CachePrefix + "vericode_limit:" + account
+	return configz.CachePrefix + "vericode_limit:" + account
 }
 
 // ApplySmsVericodeSendingPermission 短信、邮件验证码有效期不同，所以要独立出来
@@ -32,7 +32,7 @@ func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.
 	}
 
 	k := h.vericodeLimitKey(cn, phone)
-	maxTTL := config.VericodePeriodTTL
+	maxTTL := configz.VericodePeriodTTL
 
 	ttl, err := rdb.TTL(ctx, k).Result()
 	if err != nil || ttl.Seconds() < 1.0 {
@@ -88,7 +88,7 @@ func (h *Cache) CacheSmsVericode(ctx context.Context, cn aenum.Country, phone, v
 	}
 
 	k := h.vericodeKey(pseudoId, cn, phone)
-	ttl := config.VericodeTTL
+	ttl := configz.VericodeTTL
 	_, err := rdb.SetEx(ctx, k, vericode, ttl).Result()
 	return h.app.CheckErrors(ctx, err)
 }

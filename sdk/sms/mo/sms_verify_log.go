@@ -4,7 +4,7 @@ import (
 	"github.com/aarioai/airis-driver/driver/index"
 	"github.com/aarioai/airis/aa/aenum"
 	"github.com/aarioai/airis/aa/atype"
-	"github.com/aarioai/golib/sdk/sms/config"
+	"github.com/aarioai/golib/sdk/sms/configz"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -20,7 +20,7 @@ type SmsVerifyLog struct {
 }
 
 func (t SmsVerifyLog) Table() string {
-	return config.SmsLogDbPrefix + "sms_verify_log"
+	return configz.SmsLogDbPrefix + "sms_verify_log"
 }
 
 func (t SmsVerifyLog) Indexes() index.Indexes {

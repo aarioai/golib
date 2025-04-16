@@ -1,4 +1,4 @@
-package config
+package configz
 
 var (
 	UserTokenCryptMd5Key = ""

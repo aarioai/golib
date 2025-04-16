@@ -4,7 +4,7 @@ import (
 	"github.com/aarioai/airis-driver/driver/index"
 	"github.com/aarioai/airis/aa/aenum"
 	"github.com/aarioai/airis/aa/atype"
-	"github.com/aarioai/golib/sdk/sms/config"
+	"github.com/aarioai/golib/sdk/sms/configz"
 	"github.com/aarioai/golib/sdk/sms/enum"
 )
 
@@ -26,7 +26,7 @@ type SmsVericodeLog struct {
 }
 
 func (t SmsVericodeLog) Table() string {
-	return config.SmsLogDbPrefix + "sms_vericode_log"
+	return configz.SmsLogDbPrefix + "sms_vericode_log"
 }
 
 func (t SmsVericodeLog) Indexes() index.Indexes {

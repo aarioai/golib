@@ -3,12 +3,12 @@ package auth
 import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/golib/lib/code/coding"
-	"github.com/aarioai/golib/sdk/auth/adto"
-	"github.com/aarioai/golib/sdk/auth/config"
+	"github.com/aarioai/golib/sdk/auth/configz"
+	"github.com/aarioai/golib/sdk/auth/dtoz"
 )
 
 // 这里最好用string,因为 []byte是指针
-func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTTL int64, admin uint8, scope map[string]any, conflict bool) adto.Token {
+func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTTL int64, admin uint8, scope map[string]any, conflict bool) dtoz.Token {
 
 	if admin > 0 {
 		if scope == nil {
@@ -18,16 +18,16 @@ func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTT
 		}
 	}
 
-	return adto.Token{
+	return dtoz.Token{
 		AccessToken: atoken,
 		Conflict:    conflict,
 
-		ValidateAPI: config.ValidateAPI,
+		ValidateAPI: configz.ValidateAPI,
 		// Bearer  --> 客户端上传header: Authorization: Bearer $access_token
-		TokenType:    config.UserTokenType,
+		TokenType:    configz.UserTokenType,
 		ExpiresIn:    expiresIn,
 		RefreshToken: rtoken,
-		RefreshAPI:   config.RefreshAPI,
+		RefreshAPI:   configz.RefreshAPI,
 		RefreshTTL:   tokenTTL,
 		Secure:       secure,
 
@@ -46,7 +46,7 @@ func (s *Service) encryptUserFreshToken(atoken string) (string, *ae.Error) {
 			rtoken[i] = '_'
 		}
 	}
-	base := []byte(config.UserTokenShuffleBase)
+	base := []byte(configz.UserTokenShuffleBase)
 	if err := coding.ShuffleEncrypt(rtoken, userTokenBaseShift, base); err != nil {
 		return "", ae.NewError(err)
 	}
@@ -68,7 +68,7 @@ func (s *Service) DecryptUserFreshToken(rtoken string) (string, *ae.Error) {
 			atoken[i] = '_'
 		}
 	}
-	base := []byte(config.UserTokenShuffleBase)
+	base := []byte(configz.UserTokenShuffleBase)
 	if err := coding.ShuffleDecrypt(atoken, userTokenBaseShift, base); err != nil {
 		return "", ae.NewError(err)
 	}

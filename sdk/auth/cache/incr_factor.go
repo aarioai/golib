@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 	"github.com/aarioai/golib/enumz"
-	"github.com/aarioai/golib/sdk/auth/config"
+	"github.com/aarioai/golib/sdk/auth/configz"
 	"github.com/aarioai/golib/sdk/cachez"
 	"github.com/aarioai/golib/typez"
 	"strconv"
@@ -25,7 +25,7 @@ func toUserTokenFactorField(svc typez.Svc, uid uint64, ua enumz.UA) string {
 	return s + "uid:" + u + ":ua:" + ua.String()
 }
 func incrUserTokenKeyPrefix() string {
-	return config.CachePrefix + "user_token_factor:"
+	return configz.CachePrefix + "user_token_factor:"
 }
 func (h *Cache) IncrUserTokenFactor(ctx context.Context, svc typez.Svc, uid uint64, ua enumz.UA) (int64, bool) {
 	rdb, ok := h.rdb(ctx)
@@ -34,8 +34,8 @@ func (h *Cache) IncrUserTokenFactor(ctx context.Context, svc typez.Svc, uid uint
 	}
 	prefix := incrUserTokenKeyPrefix()
 	field := toUserTokenFactorField(svc, uid, ua)
-	ttl := time.Duration(config.UserRefreshTokenTTLs) * time.Second
-	factor, e := cachez.IncrFactor(ctx, rdb, ttl, field, prefix, config.UserTokenIntervalDays, 3)
+	ttl := time.Duration(configz.UserRefreshTokenTTLs) * time.Second
+	factor, e := cachez.IncrFactor(ctx, rdb, ttl, field, prefix, configz.UserTokenIntervalDays, 3)
 	if !h.app.Check(ctx, e) {
 		return 0, false
 	}
@@ -49,7 +49,7 @@ func (h *Cache) LoadUserTokenFactor(ctx context.Context, svc typez.Svc, uid uint
 	}
 	prefix := incrUserTokenKeyPrefix()
 	field := toUserTokenFactorField(svc, uid, ua)
-	factor, e := cachez.LoadFactor(ctx, rdb, field, prefix, config.UserTokenIntervalDays)
+	factor, e := cachez.LoadFactor(ctx, rdb, field, prefix, configz.UserTokenIntervalDays)
 	if !h.app.Check(ctx, e) {
 		return 0, false
 	}

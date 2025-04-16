@@ -64,5 +64,12 @@ func (s *Service) WithAliyun(accessKey, accessSecret string, regionId ...string)
 }
 
 func NewE(format string, args ...any) *ae.Error {
-	return ae.NewE("libsdk: "+format, args...)
+	return ae.NewE("libsdk_sms: "+format, args...)
+}
+
+func NewError(err error) *ae.Error {
+	if err == nil {
+		return nil
+	}
+	return ae.NewE("libsdk_sms: " + err.Error())
 }

@@ -1,4 +1,4 @@
-package adto
+package dtoz
 
 type Token struct {
 	// @doc https://www.rfc-editor.org/rfc/rfc6749#section-4.2.2

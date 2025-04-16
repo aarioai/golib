@@ -46,7 +46,7 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 	}
 
 	if !s.h.CacheSmsVericode(ctx, r.Country, r.PhoneNumber, vericode, r.PseudoId) {
-		return NewE("cache sms vericode failed")
+		return NewE("cache vericode failed")
 	}
 	req := aliyun.VericodeRequest{
 		Sid:         r.Sid,

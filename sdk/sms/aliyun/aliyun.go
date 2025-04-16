@@ -3,7 +3,7 @@ package aliyun
 import (
 	"github.com/aarioai/airis/aa/aenum"
 	"github.com/aarioai/airis/pkg/afmt"
-	"github.com/aarioai/golib/sdk/sms/config"
+	"github.com/aarioai/golib/sdk/sms/configz"
 )
 
 type Aliyun struct {
@@ -15,7 +15,7 @@ type Aliyun struct {
 func NewAliyun(accessKey, accessSecret string, regionId ...string) *Aliyun {
 	region := afmt.First(regionId)
 	if region == "" {
-		region = config.AliyunDefaultRegionId
+		region = configz.AliyunDefaultRegionId
 	}
 	return &Aliyun{
 		RegionId:     region,
