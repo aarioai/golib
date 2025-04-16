@@ -24,7 +24,7 @@ func (s *Service) SendAliyunVericode(r aliyun.VericodeRequest) *ae.Error {
 			AckBizid:   "",
 			AckMsg:     "",
 			SendStatus: enum.SendUnknown,
-			SentAt:     atype.Now(s.loc),
+			SendAt:     atype.Now(s.loc),
 			//CreatedAt:  atype.Now(s.loc),
 		}
 	}
@@ -37,7 +37,7 @@ func (s *Service) SendAliyunVericode(r aliyun.VericodeRequest) *ae.Error {
 		log.AckBizid = res.BizId
 	}
 	if s.enableLog {
-		vericodeLog <- log
+		smsVericodeLog <- log
 	}
 	return e
 }

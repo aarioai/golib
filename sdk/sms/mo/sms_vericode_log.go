@@ -21,7 +21,7 @@ type SmsVericodeLog struct {
 	AckBizid   string           `bson:"ack_bizid" json:"ack_bizid"`
 	AckMsg     string           `bson:"ack_msg" json:"ack_msg"`
 	SendStatus enum.SendStatus  `bson:"send_status" json:"send_status"`
-	SentAt     atype.Datetime   `bson:"sent_at" json:"sent_at"`
+	SendAt     atype.Datetime   `bson:"send_at" json:"send_at"`
 	CreatedAt  atype.Datetime   `bson:"created_at" json:"created_at"`
 }
 
