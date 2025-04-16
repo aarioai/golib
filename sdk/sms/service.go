@@ -1,6 +1,7 @@
 package sms
 
 import (
+	"context"
 	"github.com/aarioai/airis-driver/driver/mongodb"
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/golib/sdk/sms/aliyun"
@@ -10,12 +11,13 @@ import (
 )
 
 type Service struct {
-	app       *aa.App
-	loc       *time.Location
-	aliyun    *aliyun.Aliyun
-	cache     *cache.Cache
-	mongo     *mongodb.Model
-	enableLog bool
+	app        *aa.App
+	loc        *time.Location
+	aliyun     *aliyun.Aliyun
+	cache      *cache.Cache
+	mongo      *mongodb.Model
+	enableLog  bool
+	initSignal chan struct{}
 }
 
 var (
@@ -38,12 +40,20 @@ func New(app *aa.App, redisConfigSection string) *Service {
 	}
 	s, _ = instances.LoadOrStore(redisConfigSection, s)
 	ss := s.(*Service)
-	ss.checkInitReady()
+	go ss.checkInitReady()
 	return ss
 }
 
 func (s *Service) checkInitReady() {
-
+	timer := time.NewTimer(time.Second * 5)
+	for {
+		select {
+		case <-timer.C:
+			s.app.Log.Warn(context.Background(), "sms init not start yet")
+		case <-s.initSignal:
+			return
+		}
+	}
 }
 
 func (s *Service) WithMongo(mongo *mongodb.Model) *Service {

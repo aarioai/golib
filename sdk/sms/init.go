@@ -17,6 +17,7 @@ var (
 )
 
 func (s *Service) Init(ctx acontext.Context) {
+	s.initSignal <- struct{}{}
 	s.initMongodb(ctx)
 	go func() {
 		for {
