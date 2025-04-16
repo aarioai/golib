@@ -22,28 +22,21 @@ type Service struct {
 }
 
 var (
-	instances sync.Map
+	once     sync.Once
+	instance *Service
 )
 
 func New(app *aa.App, redisConfigSection string) *Service {
-	s, ok := instances.Load(redisConfigSection)
-	if ok {
-		if s != nil {
-			return s.(*Service)
+	once.Do(func() {
+		ca := cache.New(app, redisConfigSection)
+		instance = &Service{app: app,
+			loc:        app.Config.TimeLocation,
+			h:          ca,
+			initSignal: make(chan struct{}, 1),
 		}
-		instances.Delete(redisConfigSection)
-	}
-
-	ca := cache.New(app, redisConfigSection)
-	s = &Service{app: app,
-		loc:        app.Config.TimeLocation,
-		h:          ca,
-		initSignal: make(chan struct{}, 1),
-	}
-	s, _ = instances.LoadOrStore(redisConfigSection, s)
-	ss := s.(*Service)
-	go ss.checkInitReady()
-	return ss
+		go instance.checkInitReady()
+	})
+	return instance
 }
 
 func (s *Service) checkInitReady() {

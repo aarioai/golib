@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"github.com/aarioai/airis/aa/aenum"
 	"github.com/aarioai/airis/pkg/types"
 	"github.com/aarioai/golib/sdk/sms/config"
@@ -12,14 +11,14 @@ import (
 // 短信、邮件验证码有效期不同，所以要独立出来
 func (h *Cache) vericodeKey(pseudoId string, cn aenum.Country, phone string) string {
 	cs := types.FormatUint(cn)
-	account := cs + config.CacheDelimiter + phone + config.CacheDelimiter + pseudoId
-	return fmt.Sprintf(config.CacheVericodeKeyFormat, account)
+	account := cs + ":" + phone + ":" + pseudoId
+	return config.CachePrefix + "vericode:" + account
 }
 
 func (h *Cache) vericodeLimitKey(cn aenum.Country, phone string) string {
 	cs := types.FormatUint(cn)
-	account := cs + config.CacheDelimiter + phone
-	return fmt.Sprintf(config.CacheVericodeLimitKeyFormat, account)
+	account := cs + ":" + phone
+	return config.CachePrefix + "vericode_limit:" + account
 }
 
 // ApplySmsVericodeSendingPermission 短信、邮件验证码有效期不同，所以要独立出来
