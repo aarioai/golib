@@ -3,13 +3,14 @@ module github.com/aarioai/golib
 go 1.23.6
 
 require (
-	github.com/aarioai/airis v0.1.179
-	github.com/aarioai/airis-driver v0.0.46
+	github.com/aarioai/airis v0.1.180
+	github.com/aarioai/airis-driver v0.0.47
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.83
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-querystring v1.1.0
 	github.com/kataras/iris/v12 v12.2.11
 	github.com/mssola/useragent v1.0.0
+	github.com/redis/go-redis/v9 v9.7.3
 	go.mongodb.org/mongo-driver/v2 v2.2.0
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0
 )
@@ -53,7 +54,6 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
-	github.com/redis/go-redis/v9 v9.7.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
