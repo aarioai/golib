@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/aarioai/airis-driver/driver/mongodb"
 	"github.com/aarioai/airis/aa"
+	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/golib/sdk/sms/aliyun"
 	"github.com/aarioai/golib/sdk/sms/cache"
 	"sync"
@@ -14,7 +15,7 @@ type Service struct {
 	app        *aa.App
 	loc        *time.Location
 	aliyun     *aliyun.Aliyun
-	cache      *cache.Cache
+	h          *cache.Cache
 	mongo      *mongodb.Model
 	enableLog  bool
 	initSignal chan struct{}
@@ -36,7 +37,7 @@ func New(app *aa.App, redisConfigSection string) *Service {
 	ca := cache.New(app, redisConfigSection)
 	s = &Service{app: app,
 		loc:        app.Config.TimeLocation,
-		cache:      ca,
+		h:          ca,
 		initSignal: make(chan struct{}, 1),
 	}
 	s, _ = instances.LoadOrStore(redisConfigSection, s)
@@ -67,4 +68,8 @@ func (s *Service) WithMongo(mongo *mongodb.Model) *Service {
 func (s *Service) WithAliyun(accessKey, accessSecret string, regionId ...string) *Service {
 	s.aliyun = aliyun.NewAliyun(accessKey, accessSecret, regionId...)
 	return s
+}
+
+func NewE(format string, args ...any) *ae.Error {
+	return ae.NewE("libsdk: "+format, args...)
 }

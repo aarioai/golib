@@ -26,7 +26,7 @@ func (h *Cache) vericodeLimitKey(cn aenum.Country, phone string) string {
 // 统一验证码发送，验证码对稳定性要求比较高
 // 各个子业务，可以自行决定是否使用自己的短信验证码
 // 未登录短信验证码，需要根据account来，故不能用通用的限流
-func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.Country, phone string, periodLimit int64) (time.Duration, bool) {
+func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.Country, phone string, periodLimit int) (time.Duration, bool) {
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return 0, false
@@ -45,11 +45,11 @@ func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.
 		_, err = rdb.SetEx(ctx, k, 1, maxTTL).Result()
 		return maxTTL, h.app.CheckErrors(ctx, err)
 	}
-	return ttl, periodLimit <= limit
+	return ttl, int64(periodLimit) <= limit
 }
 
-// GetSmsVericode 短信发送存在延时性问题，每10分钟内，重复发送相同的验证码
-func (h *Cache) GetSmsVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone string) (string, bool) {
+// LoadSmsVericode 短信发送存在延时性问题，每10分钟内，重复发送相同的验证码
+func (h *Cache) LoadSmsVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone string) (string, bool) {
 	k := h.vericodeKey(pseudoId, cn, phone)
 	rdb, ok := h.rdb(ctx)
 	if !ok {
@@ -69,7 +69,7 @@ func (h *Cache) GetSmsVericode(ctx context.Context, pseudoId string, cn aenum.Co
 	return vericode, true
 }
 
-func (h *Cache) ReadAndDeleteVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone string) (string, bool) {
+func (h *Cache) LoadAndDeleteVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone string) (string, bool) {
 	k := h.vericodeKey(pseudoId, cn, phone)
 	rdb, ok := h.rdb(ctx)
 	if !ok {
@@ -82,7 +82,7 @@ func (h *Cache) ReadAndDeleteVericode(ctx context.Context, pseudoId string, cn a
 	return vericode, h.app.CheckErrors(ctx, err)
 }
 
-func (h *Cache) SetSmsVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone, vericode string) bool {
+func (h *Cache) CacheSmsVericode(ctx context.Context, pseudoId string, cn aenum.Country, phone, vericode string) bool {
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return false
