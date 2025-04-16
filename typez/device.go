@@ -12,7 +12,8 @@ import (
 )
 
 type DeviceInfo struct {
-	Cipher byte `json:"cipher" url:"-"` // 保留字，不需要作为URL参数
+	Cipher byte   `json:"cipher" url:"-"` // 保留字，不需要作为URL参数
+	IP     string `json:"ip" url:"ip"`    //扩展的
 
 	PSID string `json:"psid" url:"psid"` // 优先级：UDID --> OAID  --> UUID  -->  pseudo_id or 浏览器finger
 
@@ -34,11 +35,7 @@ type DeviceInfo struct {
 
 	Timestamp int64  `json:"timestamp" url:"timestamp"` // 保持混淆后每次结果不一样
 	Nonce     string `json:"nonce" url:"nonce"`         // 随机码，保持每次结果不一样
-}
 
-type DeviceInfoExt struct {
-	DeviceInfo
-	IP string `json:"ip"` //扩展的
 }
 
 func (d DeviceInfo) Valid() bool {

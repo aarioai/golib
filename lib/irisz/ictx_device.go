@@ -19,12 +19,12 @@ func ClientIP(ictx iris.Context) atype.Ip {
 	return atype.ToIp(ipr)
 }
 
-func ctxGetDeviceInfo(ictx iris.Context) (*typez.DeviceInfoExt, bool) {
+func ctxGetDeviceInfo(ictx iris.Context) (*typez.DeviceInfo, bool) {
 	ua, err := ictx.Values().GetUint16("DeviceInfo.UA")
 	if err != nil {
 		return nil, false
 	}
-	var d typez.DeviceInfoExt
+	var d typez.DeviceInfo
 	d.IP = acontext.ClientIP(ictx)
 	d.UA, _ = enumz.NewUA(ua)
 	d.PSID = ictx.Values().GetString("DeviceInfo.PSID")
@@ -95,19 +95,22 @@ func parseUserAgent(r *request.Request) (ua enumz.UA, model, os, agent, info str
 	agent = browserName + " " + browserVer
 	return
 }
-func parseDeviceInfo(r *request.Request) (*typez.DeviceInfo, error) {
+func parseDeviceInfo(ictx iris.Context, r *request.Request) (*typez.DeviceInfo, error) {
 	devi := r.QueryWildFast(enumz.ParamApollo)
 	if devi == "" {
 		return nil, errors.New("miss device info")
 	}
-	return typez.DecodeDeviceInfo(devi)
+	di, err := typez.DecodeDeviceInfo(devi)
+	if err != nil {
+		return nil, err
+	}
+	di.IP = acontext.ClientIP(ictx)
+	return di, nil
 }
 
-/**
- * 通过HTML访问，middleware.SetCommonViewData 会执行一次这个
- * 如果是访问HTML，同时请求API，API里面也有获取 GetDeviceInfo() ，那么则相当于两个独立请求执行这个，debug时候输出多个是此原因
- */
-func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfoExt {
+// GetDeviceInfo 通过HTML访问，middleware.SetCommonViewData 会执行一次这个
+// 如果是访问HTML，同时请求API，API里面也有获取 GetDeviceInfo() ，那么则相当于两个独立请求执行这个，debug时候输出多个是此原因
+func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfo {
 	deviceInfoMtx.Lock()
 	defer deviceInfoMtx.Unlock()
 	dp, ok := ctxGetDeviceInfo(ictx)
@@ -115,7 +118,7 @@ func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfoExt {
 		return *dp
 	}
 	ua, model, os, agent, info := parseUserAgent(r)
-	devi, err := parseDeviceInfo(r)
+	devi, err := parseDeviceInfo(ictx, r)
 	if err != nil {
 		devi = &typez.DeviceInfo{}
 	}
@@ -128,10 +131,7 @@ func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfoExt {
 	}
 
 	ctxSetDeviceInfo(ictx, *devi)
-	return typez.DeviceInfoExt{
-		DeviceInfo: *devi,
-		IP:         acontext.ClientIP(ictx),
-	}
+	return *devi
 }
 
 func CtxSetFingerprintServerTime(ictx iris.Context, ms int64) {
