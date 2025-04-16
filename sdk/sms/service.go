@@ -35,8 +35,9 @@ func New(app *aa.App, redisConfigSection string) *Service {
 
 	ca := cache.New(app, redisConfigSection)
 	s = &Service{app: app,
-		loc:   app.Config.TimeLocation,
-		cache: ca,
+		loc:        app.Config.TimeLocation,
+		cache:      ca,
+		initSignal: make(chan struct{}, 1),
 	}
 	s, _ = instances.LoadOrStore(redisConfigSection, s)
 	ss := s.(*Service)
@@ -45,11 +46,12 @@ func New(app *aa.App, redisConfigSection string) *Service {
 }
 
 func (s *Service) checkInitReady() {
-	timer := time.NewTimer(time.Second * 5)
+	ticker := time.NewTimer(time.Second * 5)
+	defer ticker.Stop()
 	for {
 		select {
-		case <-timer.C:
-			s.app.Log.Warn(context.Background(), "sms init not start yet")
+		case <-ticker.C:
+			s.app.Log.Warn(context.Background(), "libsdk: sms not init yet")
 		case <-s.initSignal:
 			return
 		}
