@@ -21,11 +21,11 @@ func (h *Cache) vericodeLimitKey(cn aenum.Country, phone string) string {
 	return configz.CachePrefix + "vericode_limit:" + account
 }
 
-// ApplySmsVericodeSendingPermission 短信、邮件验证码有效期不同，所以要独立出来
+// IncrAndCheckSmsVericodeLimit 短信、邮件验证码有效期不同，所以要独立出来
 // 统一验证码发送，验证码对稳定性要求比较高
 // 各个子业务，可以自行决定是否使用自己的短信验证码
 // 未登录短信验证码，需要根据account来，故不能用通用的限流
-func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.Country, phone string, periodLimit int) (time.Duration, bool) {
+func (h *Cache) IncrAndCheckSmsVericodeLimit(ctx context.Context, cn aenum.Country, phone string, periodLimit int) (time.Duration, bool) {
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return 0, false
@@ -44,7 +44,7 @@ func (h *Cache) ApplySmsVericodeSendingPermission(ctx context.Context, cn aenum.
 		_, err = rdb.SetEx(ctx, k, 1, maxTTL).Result()
 		return maxTTL, h.app.CheckErrors(ctx, err)
 	}
-	return ttl, int64(periodLimit) <= limit
+	return ttl, limit <= int64(periodLimit)
 }
 
 // LoadSmsVericode 短信发送存在延时性问题，每10分钟内，重复发送相同的验证码

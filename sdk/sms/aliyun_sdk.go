@@ -26,9 +26,9 @@ type VericodeSMSRequest struct {
 
 func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSRequest) *ae.Error {
 	if r.PeriodLimit > 0 {
-		_, ok := s.h.ApplySmsVericodeSendingPermission(ctx, r.Country, r.PhoneNumber, r.PeriodLimit)
+		_, ok := s.h.IncrAndCheckSmsVericodeLimit(ctx, r.Country, r.PhoneNumber, r.PeriodLimit)
 		if !ok {
-			return ae.New(ae.TooManyRequests)
+			return ae.ErrorTooManyRequests
 		}
 	}
 
