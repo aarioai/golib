@@ -1,13 +1,13 @@
 package configz
 
 var (
-	UserTokenCryptMd5Key = ""
-	UserTokenShuffleBase = ""
+	UserTokenCryptMd5Key = "" // 除了#;:空格和换行符（ini和yaml注释符号）任意长度任意英文字符串，如 fg)bwM&umi!uEm$x(
+	UserTokenShuffleBase = "" //  将 _0123456789abcdefghijklmnopqrstuvwxyz 乱序后使用
 
 	UserTokenType = "Bearer"
 	ValidateAPI   = "HEAD /api/v1/pas/auth/access_token"
 	RefreshAPI    = "PUT /api/v1/pas/auth/access_token"
-	
+
 	CachePrefix = "libsdk:auth:"
 
 	UserTokenTimeWindow   = int64(10 * 60)         // 10分钟的时间窗口

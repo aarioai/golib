@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
+	"github.com/aarioai/golib/lib/code/coding"
 	"github.com/aarioai/golib/sdk/auth/cache"
 	"github.com/aarioai/golib/sdk/auth/configz"
 	"sync"
@@ -52,4 +53,5 @@ func panicOnEmpty(name, s string) {
 func CheckConfig() {
 	panicOnEmpty("UserTokenCryptMd5Key", configz.UserTokenCryptMd5Key)
 	panicOnEmpty("UserTokenShuffleBase", configz.UserTokenShuffleBase)
+	coding.ValidateShuffleEncryptKeys(configz.UserTokenShuffleBase)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/aarioai/golib/lib/code/coding"
 	"github.com/aarioai/golib/sdk/sms/aliyun"
 	"github.com/aarioai/golib/sdk/sms/mo"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type VericodeSMSRequest struct {
@@ -61,7 +61,7 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 
 func (s *Service) VerifySmsVericode(ctx context.Context, cn aenum.Country, phoneNum, vericode, pseudoId string) *ae.Error {
 	t := mo.SmsVerifyLog{
-		Id:       bson.ObjectID{},
+		Id:       primitive.NewObjectID(),
 		Country:  cn,
 		PhoneNum: phoneNum,
 		Vericode: vericode,
