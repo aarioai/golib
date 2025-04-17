@@ -22,21 +22,21 @@ type Service struct {
 }
 
 var (
-	once     sync.Once
-	instance *Service
+	once sync.Once
+	s    *Service
 )
 
 func New(app *aa.App, redisConfigSection string) *Service {
 	once.Do(func() {
 		ca := cache.New(app, redisConfigSection)
-		instance = &Service{app: app,
+		s = &Service{app: app,
 			loc:        app.Config.TimeLocation,
 			h:          ca,
 			initSignal: make(chan struct{}, 1),
 		}
-		go instance.checkInitReady()
+		go s.checkInitReady()
 	})
-	return instance
+	return s
 }
 
 func (s *Service) checkInitReady() {

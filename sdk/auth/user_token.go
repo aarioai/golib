@@ -3,12 +3,22 @@ package auth
 import (
 	"context"
 	"github.com/aarioai/airis/aa/ae"
-	"github.com/aarioai/airis/aa/httpsvr/request"
 	"github.com/aarioai/golib/enumz"
 	"github.com/aarioai/golib/sdk/auth/configz"
 	"github.com/aarioai/golib/sdk/auth/dtoz"
+	"github.com/aarioai/golib/sdk/auth/midiris"
 	"github.com/aarioai/golib/typez"
+	"github.com/kataras/iris/v12"
 	"time"
+)
+
+type CredentialsType uint8
+
+const (
+	DefaultCredentials CredentialsType = 0
+	ApiCredentials     CredentialsType = 1
+	ViewCredentials    CredentialsType = 2
+	SseCredentials     CredentialsType = 3
 )
 
 // NewUserToken
@@ -36,12 +46,14 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 	return &t, nil
 }
 
-func (s *Service) LoadUserCredential(ctx context.Context, r *request.Request, di typez.DeviceInfo) (atoken string, svc typez.Svc, uid, vuid uint64, authAt int64, e *ae.Error) {
-	if atoken = ApiAccessToken(r); atoken == "" {
-		e = ae.NewE("no credentials")
+// ParseUserAuthorization
+func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, authAt int64, atoken string, e *ae.Error) {
+	if atoken = midiris.AccessToken(ictx); atoken == "" {
+		e = ae.ErrorUnauthorized
 		return
 	}
-
+	ctx := ictx.Request().Context()
+	di := midiris.DeviceInfo(ictx)
 	var psid string
 	var factor int64
 	var ua enumz.UA
@@ -51,12 +63,43 @@ func (s *Service) LoadUserCredential(ctx context.Context, r *request.Request, di
 	}
 
 	if !ua.Is(di.UA) || psid != di.PSID {
-		e = ae.NewE("user token UA(%s) %s != UA(%s) %s or psid:%s != %s", ua.String(), ua.Name(), di.UA.String(), di.UA.Name(), psid, di.PSID)
+		s.app.Log.Notice(ctx, "user token %s UA(%s) %s != UA(%s) %s or psid:%s != %s", atoken, ua.String(), ua.Name(), di.UA.String(), di.UA.Name(), psid, di.PSID)
+		e = ae.ErrorUnauthorized
+		return
 	}
 
-	cachedFactor, _ := s.h.LoadUserTokenFactor(ctx, svc, uid, ua)
-	if factor != cachedFactor {
-		e = ae.NewE("invalid access token factor")
+	cachedFactor, ok := s.h.LoadUserTokenFactor(ctx, svc, uid, ua)
+	if !ok || factor != cachedFactor {
+		e = ae.ErrorLoginTimeout
+		return
+	}
+
+	now := time.Now().Unix()
+	expiresAt := authAt + configz.UserTokenTTLs
+	if now > expiresAt {
+		e = ae.ErrorLoginTimeout
+		return
 	}
 	return
+}
+
+// LoadUserAuthorization parse user authorization then set them into context
+func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
+	var ok bool
+	if svc, uid, vuid, ok = midiris.Uid(ictx, s.withVuid); ok {
+		return
+	}
+	svc, uid, vuid, _, _, e = s.ParseUserAuthorization(ictx)
+	if e != nil {
+		return
+	}
+	if ok = midiris.SetUid(ictx, svc, uid, vuid); !ok {
+		return 0, 0, 0, NewE("iris middleware set uid failed")
+	}
+	return
+}
+
+func (s *Service) UserLogout(ctx context.Context, svc typez.Svc, uid uint64, ua enumz.UA) {
+	// 废除之前的 factor
+	s.h.IncrUserTokenFactor(ctx, svc, uid, ua)
 }

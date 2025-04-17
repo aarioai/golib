@@ -1,4 +1,4 @@
-package irisz
+package midiris
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ func ClientIP(ictx iris.Context) atype.Ip {
 	return atype.ToIp(ipr)
 }
 
-func ctxGetDeviceInfo(ictx iris.Context) (*typez.DeviceInfo, bool) {
+func deviceInfo(ictx iris.Context) (*typez.DeviceInfo, bool) {
 	ua, err := ictx.Values().GetUint16("DeviceInfo.UA")
 	if err != nil {
 		return nil, false
@@ -42,7 +42,7 @@ func ctxGetDeviceInfo(ictx iris.Context) (*typez.DeviceInfo, bool) {
 	return &d, true
 }
 
-func ctxSetDeviceInfo(ictx iris.Context, d typez.DeviceInfo) {
+func setDeviceInfo(ictx iris.Context, d typez.DeviceInfo) {
 	ictx.Values().Set("DeviceInfo.UA", d.UA.Uint16())
 
 	if d.PSID != "" {
@@ -82,12 +82,11 @@ func ctxSetDeviceInfo(ictx iris.Context, d typez.DeviceInfo) {
 		ictx.Values().Set("DeviceInfo.Info", d.Info)
 	}
 }
-func parseUserAgent(r *request.Request) (ua enumz.UA, model, os, agent, info string) {
-	info = r.UserAgent()
-	if info == "" {
+func parseUserAgent(ictx iris.Context) (ua enumz.UA, model, os, agent, raw string) {
+	if raw = ictx.GetHeader("User-Agent"); raw == "" {
 		return
 	}
-	uag := useragent.New(info)
+	uag := useragent.New(raw)
 	ua = enumz.UserAgentToUA(uag)
 	model = uag.Model()
 	os = uag.OS()
@@ -95,12 +94,12 @@ func parseUserAgent(r *request.Request) (ua enumz.UA, model, os, agent, info str
 	agent = browserName + " " + browserVer
 	return
 }
-func parseDeviceInfo(ictx iris.Context, r *request.Request) (*typez.DeviceInfo, error) {
-	devi := r.QueryWildFast(enumz.ParamApollo)
-	if devi == "" {
+func parseDeviceInfo(ictx iris.Context) (*typez.DeviceInfo, error) {
+	apollo := request.QueryWild(ictx, enumz.ParamApollo)
+	if apollo == "" {
 		return nil, errors.New("miss device info")
 	}
-	di, err := typez.DecodeDeviceInfo(devi)
+	di, err := typez.DecodeDeviceInfo(apollo)
 	if err != nil {
 		return nil, err
 	}
@@ -108,17 +107,17 @@ func parseDeviceInfo(ictx iris.Context, r *request.Request) (*typez.DeviceInfo, 
 	return di, nil
 }
 
-// GetDeviceInfo 通过HTML访问，middleware.SetCommonViewData 会执行一次这个
+// DeviceInfo 通过HTML访问，middleware.SetCommonViewData 会执行一次这个
 // 如果是访问HTML，同时请求API，API里面也有获取 GetDeviceInfo() ，那么则相当于两个独立请求执行这个，debug时候输出多个是此原因
-func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfo {
+func DeviceInfo(ictx iris.Context) typez.DeviceInfo {
 	deviceInfoMtx.Lock()
 	defer deviceInfoMtx.Unlock()
-	dp, ok := ctxGetDeviceInfo(ictx)
+	dp, ok := deviceInfo(ictx)
 	if ok {
 		return *dp
 	}
-	ua, model, os, agent, info := parseUserAgent(r)
-	devi, err := parseDeviceInfo(ictx, r)
+	ua, model, os, agent, info := parseUserAgent(ictx)
+	devi, err := parseDeviceInfo(ictx)
 	if err != nil {
 		devi = &typez.DeviceInfo{}
 	}
@@ -130,14 +129,14 @@ func GetDeviceInfo(ictx iris.Context, r *request.Request) typez.DeviceInfo {
 		devi.Info = info
 	}
 
-	ctxSetDeviceInfo(ictx, *devi)
+	setDeviceInfo(ictx, *devi)
 	return *devi
 }
 
-func CtxSetFingerprintServerTime(ictx iris.Context, ms int64) {
+func SetFingerprintServerTime(ictx iris.Context, ms int64) {
 	ictx.Values().Set(enumz.IctxParamFingerprintServerTime, ms)
 }
-func CtxGetFingerprintServerTime(ictx iris.Context) int64 {
+func FingerprintServerTime(ictx iris.Context) int64 {
 	ms, _ := ictx.Values().GetInt64(enumz.IctxParamFingerprintServerTime)
 	return ms
 }

@@ -11,26 +11,28 @@ import (
 )
 
 type Service struct {
-	app *aa.App
-	loc *time.Location
-	h   *cache.Cache
+	app      *aa.App
+	loc      *time.Location
+	h        *cache.Cache
+	withVuid bool
 }
 
 var (
-	once     sync.Once
-	instance *Service
+	once sync.Once
+	s    *Service
 )
 
-func New(app *aa.App, redisConfigSection string) *Service {
+func New(app *aa.App, redisConfigSection string, withVuid bool) *Service {
 	once.Do(func() {
 		CheckConfig()
 		ca := cache.New(app, redisConfigSection)
-		instance = &Service{app: app,
-			loc: app.Config.TimeLocation,
-			h:   ca,
+		s = &Service{app: app,
+			loc:      app.Config.TimeLocation,
+			h:        ca,
+			withVuid: withVuid,
 		}
 	})
-	return instance
+	return s
 }
 func NewE(format string, args ...any) *ae.Error {
 	return ae.NewE("libsdk_auth: "+format, args...)

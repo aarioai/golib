@@ -14,3 +14,10 @@ func (s Svc) Valid() bool {
 func (s Svc) String() string {
 	return types.FormatUint(uint64(s))
 }
+
+func (s Svc) Or(defaultSvc Svc) Svc {
+	if s.Valid() {
+		return s
+	}
+	return defaultSvc
+}
