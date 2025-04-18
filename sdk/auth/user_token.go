@@ -17,9 +17,35 @@ func AuthTime(ttl int64) time.Time {
 	return time.Unix(authAt, 0)
 }
 
+// 这里最好用string,因为 []byte是指针
+func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTTL int64, admin typez.AdminLevel, scope map[string]any, conflict bool) dtoz.Token {
+	if admin.Valid() {
+		if scope == nil {
+			scope = make(map[string]any, 1)
+		}
+		scope["admin"] = admin
+	}
+
+	return dtoz.Token{
+		AccessToken: atoken,
+		Conflict:    conflict,
+
+		ValidateAPI: configz.ValidateAPI,
+		// Bearer  --> 客户端上传header: Authorization: Bearer $access_token
+		TokenType:    configz.UserTokenType,
+		ExpiresIn:    expiresIn,
+		RefreshToken: rtoken,
+		RefreshAPI:   configz.RefreshAPI,
+		RefreshTTL:   tokenTTL,
+		Secure:       secure,
+
+		Scope: scope,
+	}
+}
+
 // NewUserToken
 // secureLogin 是否是通过验证码等安全方式登录的
-func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uint64, ua enumz.UA, psid string, admin uint8, conflict, secureLogin bool) (*dtoz.Token, *ae.Error) {
+func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uint64, ua enumz.UA, psid string, admin typez.AdminLevel, conflict, secureLogin bool) (*dtoz.Token, *ae.Error) {
 
 	authAt := time.Now().Unix()
 	factor, ok := s.h.IncrUserTokenFactor(ctx, svc, uid, ua)

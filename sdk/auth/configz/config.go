@@ -14,5 +14,5 @@ var (
 	UserTokenTTLs         = int64(12 * 3600)       //  time-to-life in seconds 客户端token 只保留12小时
 	UserRefreshTokenTTLs  = int64(181 * 24 * 3600) //  time-to-life in seconds refresh token 有效期
 	UserTokenIntervalDays = uint8(7)
-	UserTokenWillRefresh  = 4 * 3600 // 若access token剩余小于这个值，使用refresh token才会更新；否则会沿用之前的
+	UserTokenWillRefresh  = int64(4 * 3600) // 若access token剩余小于这个值，使用refresh token才会更新；否则会沿用之前的
 )

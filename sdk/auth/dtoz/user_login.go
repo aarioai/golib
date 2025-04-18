@@ -17,3 +17,4 @@ type Token struct {
 	Secure       bool   `json:"secure"`        // 是否安全 --> 如果是通过psid登录的，则就不安全
 	ValidateAPI  string `json:"validate_api"`  // validate client's access token is still available
 }
+ 
