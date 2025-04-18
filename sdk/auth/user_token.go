@@ -11,7 +11,12 @@ import (
 	"github.com/kataras/iris/v12"
 	"time"
 )
- 
+
+func AuthTime(ttl int64) time.Time {
+	authAt := ttl + time.Now().Unix() - configz.UserTokenTTLs
+	return time.Unix(authAt, 0)
+}
+
 // NewUserToken
 // secureLogin 是否是通过验证码等安全方式登录的
 func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uint64, ua enumz.UA, psid string, admin uint8, conflict, secureLogin bool) (*dtoz.Token, *ae.Error) {
