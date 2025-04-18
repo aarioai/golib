@@ -11,16 +11,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"time"
 )
-
-type CredentialsType uint8
-
-const (
-	DefaultCredentials CredentialsType = 0
-	ApiCredentials     CredentialsType = 1
-	ViewCredentials    CredentialsType = 2
-	SseCredentials     CredentialsType = 3
-)
-
+ 
 // NewUserToken
 // secureLogin 是否是通过验证码等安全方式登录的
 func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uint64, ua enumz.UA, psid string, admin uint8, conflict, secureLogin bool) (*dtoz.Token, *ae.Error) {
@@ -46,17 +37,18 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 	return &t, nil
 }
 
-// ParseUserAuthorization
-func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, authAt int64, atoken string, e *ae.Error) {
+func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, e *ae.Error) {
 	if atoken = midiris.AccessToken(ictx); atoken == "" {
 		e = ae.ErrorUnauthorized
 		return
 	}
 	ctx := ictx.Request().Context()
 	di := midiris.DeviceInfo(ictx)
-	var psid string
-	var factor int64
-	var ua enumz.UA
+	var (
+		psid           string
+		ua             enumz.UA
+		authAt, factor int64
+	)
 	svc, uid, vuid, ua, psid, authAt, factor, _, e = s.decryptUserToken(ctx, atoken)
 	if e != nil {
 		return
@@ -73,10 +65,8 @@ func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid,
 		e = ae.ErrorLoginTimeout
 		return
 	}
-
-	now := time.Now().Unix()
-	expiresAt := authAt + configz.UserTokenTTLs
-	if now > expiresAt {
+	ttl = authAt + configz.UserTokenTTLs - time.Now().Unix()
+	if ttl < 0 {
 		e = ae.ErrorLoginTimeout
 		return
 	}

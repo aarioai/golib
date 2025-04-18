@@ -4,7 +4,8 @@ const (
 	ParamS2SToken = "access_token" // 统一使用 access_token
 
 	HeaderAuthorization = "Authorization" // header 里面，
-	HeaderMessage       = "X-MESSAGE"
+	HeaderError         = "X-ERROR"       // HEAD下，服务端返回客户端的header错误信息
+	HeaderData          = "X-Data"        // HEAD 下附加的数据信息，json格式
 	// 注意：手机端IP可能会经常变换，因此不要过度依赖
 	// @warn 尽量不要通过自定义header传参，因为可能某个web server会基于安全禁止某些无法识别的header
 	ParamApollo               = "apollo" //  阿波罗计划，设备信息
@@ -22,12 +23,9 @@ const (
 	ParamSign                 = "sign"  // 不用header，这样对于一些git hook等兼容性更强
 
 	HeaderMmcFingerprint = "X-MMC-Fingerprint"
-	HeaderSvcId          = "X-Svc-Vuid"
 	HeaderOpenid         = "X-Openid"
-	//HeaderAppid       = "X-Appid"// 不用header，这样对于一些git hook等兼容性更强
-	//HeaderSign        = "X-Sign"
-	ParamLogout = "logout"
-	ParamOpenid = "openid"
+	ParamLogout          = "logout"
+	ParamOpenid          = "openid"
 
 	// 用户分享 这个是 f=$mission_b36(vuid)
 	ParamAg = "ag"
@@ -36,7 +34,7 @@ const (
 	IctxParamUid                   = "Uid"
 	IctxParamVuid                  = "Vuid"
 	IctxParamSvc                   = "Svc"
- 
+
 	IctxParamTokenByT3 = "TokenByT3"
 	////IctxParamAImageXhost = "AImageXhost"
 	////IctxParamEnv        = "Env"

@@ -9,7 +9,7 @@ import (
 )
 
 // 短信、邮件验证码有效期不同，所以要独立出来
-func (h *Cache) vericodeKey(pseudoId string, cn aenum.Country, phone string) string {
+func (h *Cache) vericodeKey(cn aenum.Country, phone string, pseudoId string) string {
 	cs := types.FormatUint(cn)
 	account := cs + ":" + phone + ":" + pseudoId
 	return configz.CachePrefix + "vericode:" + account
@@ -49,7 +49,7 @@ func (h *Cache) IncrAndCheckSmsVericodeLimit(ctx context.Context, cn aenum.Count
 
 // LoadSmsVericode 短信发送存在延时性问题，每10分钟内，重复发送相同的验证码
 func (h *Cache) LoadSmsVericode(ctx context.Context, cn aenum.Country, phone, pseudoId string) (string, bool) {
-	k := h.vericodeKey(pseudoId, cn, phone)
+	k := h.vericodeKey(cn, phone, pseudoId)
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return "", false
@@ -69,7 +69,7 @@ func (h *Cache) LoadSmsVericode(ctx context.Context, cn aenum.Country, phone, ps
 }
 
 func (h *Cache) LoadAndDeleteVericode(ctx context.Context, cn aenum.Country, phone, pseudoId string) (string, bool) {
-	k := h.vericodeKey(pseudoId, cn, phone)
+	k := h.vericodeKey(cn, phone, pseudoId)
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return "", false
@@ -86,8 +86,7 @@ func (h *Cache) CacheSmsVericode(ctx context.Context, cn aenum.Country, phone, v
 	if !ok {
 		return false
 	}
-
-	k := h.vericodeKey(pseudoId, cn, phone)
+	k := h.vericodeKey(cn, phone, pseudoId)
 	ttl := configz.VericodeTTL
 	_, err := rdb.SetEx(ctx, k, vericode, ttl).Result()
 	return h.app.CheckErrors(ctx, err)
