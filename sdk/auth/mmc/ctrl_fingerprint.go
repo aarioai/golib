@@ -45,32 +45,30 @@ func PostFingerprint(ictx iris.Context) {
   2. mmcid 相当于
 */
 
-func (s *Service) FingerprintMiddleware() func(ctx iris.Context) {
-	return func(ictx iris.Context) {
-		fingerprint := ictx.GetHeader(enumz.HeaderMmcFingerprint)
-		if fingerprint == "" {
-			response.JsonE(ictx, ae.NewBadParam(enumz.HeaderMmcFingerprint))
-			return
-		}
-		ctx := acontext.FromIris(ictx)
-		// 不对apollo传错提示
-		apollo := request.QueryWild(ictx, enumz.ParamApollo)
-		_, err := typez.DecodeDeviceInfo(apollo)
-		if err != nil {
-			s.app.Log.Warn(ctx, "query apollo got %s, parse device info failed: %s\n", apollo, err.Error())
-			response.JsonE(ictx, ae.New(ae.PreconditionFailed, "客户端安全验证未通过，请联系技术人员处理"))
-			return
-		}
-
-		userAgent := ictx.GetHeader("User-Agent")
-		ip := acontext.ClientIP(ictx)
-
-		unixMs, err := s.VerifyFingerprint(ctx, []byte(fingerprint), apollo, userAgent, ip)
-		if err != nil {
-			response.JsonE(ictx, ae.New(ae.FailedDependency, "验证失败，请先双击同意协议，或联系技术人员处理"))
-			return
-		}
-		midiris.SetFingerprintServerTime(ictx, unixMs)
-		ictx.Next()
+func (s *Service) FingerprintMiddleware(ictx iris.Context) {
+	fingerprint := ictx.GetHeader(enumz.HeaderMmcFingerprint)
+	if fingerprint == "" {
+		response.JsonE(ictx, ae.NewBadParam(enumz.HeaderMmcFingerprint))
+		return
 	}
+	ctx := acontext.FromIris(ictx)
+	// 不对apollo传错提示
+	apollo := request.QueryWild(ictx, enumz.ParamApollo)
+	_, err := typez.DecodeDeviceInfo(apollo)
+	if err != nil {
+		s.app.Log.Warn(ctx, "query apollo got %s, parse device info failed: %s\n", apollo, err.Error())
+		response.JsonE(ictx, ae.New(ae.PreconditionFailed, "客户端安全验证未通过，请联系技术人员处理"))
+		return
+	}
+
+	userAgent := ictx.GetHeader("User-Agent")
+	ip := acontext.ClientIP(ictx)
+
+	unixMs, err := s.VerifyFingerprint(ctx, []byte(fingerprint), apollo, userAgent, ip)
+	if err != nil {
+		response.JsonE(ictx, ae.New(ae.FailedDependency, "验证失败，请先双击同意协议，或联系技术人员处理"))
+		return
+	}
+	midiris.SetFingerprintServerTime(ictx, unixMs)
+	ictx.Next()
 }

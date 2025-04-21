@@ -1,6 +1,8 @@
 package configz
 
-import "time"
+import (
+	"time"
+)
 
 var (
 	UserTokenCryptMd5Key = "" // 除了#;:空格和换行符（ini和yaml注释符号）任意长度任意英文字符串，如 fg)bwM&umi!uEm$x(

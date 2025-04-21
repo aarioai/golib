@@ -1,6 +1,7 @@
-package auth
+package openid
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/aarioai/airis/aa/acontext"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-func parseSvcId(s string) (typez.Svc, bool) {
+func parseUserOpenidSvc(s string) (typez.Svc, bool) {
 	// 只有base36
 	var x string
 	for _, b := range s {
@@ -30,7 +31,7 @@ func parseSvcId(s string) (typez.Svc, bool) {
 }
 
 // 将 appid secret 转为 des cbc
-func (s *Service) OpenidDesCBCKey(appid, secret string) ([]byte, []byte, *ae.Error) {
+func (s *Service) UserOpenidDesCBCKey(appid, secret string) ([]byte, []byte, *ae.Error) {
 	str := []byte(appid + secret)
 	length := coding.DesKeyLength
 	key := str[len(str)-length:]
@@ -41,13 +42,17 @@ func (s *Service) OpenidDesCBCKey(appid, secret string) ([]byte, []byte, *ae.Err
 	return key, iv, nil
 }
 
-// EncodeOpenid svc  需要用作解密时候参数，所以独立出来 svc+ DES( + uid|时间戳|appid)
+// EncodeUserOpenid svc  需要用作解密时候参数，所以独立出来 svc+ DES( + uid|时间戳|appid)
 // 结构： [len:1][svc:$len][ds]
 //
 //	         ds => [hash:16][factor]
 //					factor => [len-ts:1][ts:N]|[xu:N]
-func (s *Service) EncodeOpenid(svc typez.Svc, uid uint64, appid, secret string) (string, time.Duration, *ae.Error) {
-	desKey, desIV, e := s.OpenidDesCBCKey(appid, secret)
+func (s *Service) EncodeUserOpenid(ctx context.Context, svc typez.Svc, uid uint64) (string, time.Duration, *ae.Error) {
+	appid, secret, e := s.secretHandler(ctx, s.app, svc)
+	if e != nil {
+		return "", 0, e
+	}
+	desKey, desIV, e := s.UserOpenidDesCBCKey(appid, secret)
 	if e != nil {
 		return "", 0, e
 	}
@@ -78,78 +83,62 @@ func (s *Service) EncodeOpenid(svc typez.Svc, uid uint64, appid, secret string) 
 	return sv + string(ds), configz.OpenidTTL, nil
 }
 
-func (s *Service) EncodeOpenidFromConfig(svc typez.Svc, uid uint64, appidConfigKey, secretConfigKey string) (string, time.Duration, *ae.Error) {
-	appid, err := s.app.Config.MustGetString(appidConfigKey)
-	if err != nil {
-		return "", 0, ae.BadConfig(appidConfigKey)
-	}
-	var secret string
-	if secret, err = s.app.Config.MustGetString(secretConfigKey); err != nil {
-		return "", 0, ae.BadConfig(secretConfigKey)
-	}
-	return s.EncodeOpenid(svc, uid, appid, secret)
-}
-
-func (s *Service) DecodeOpenid(openid, appid, secret string) (typez.Svc, uint64, *ae.Error) {
+func (s *Service) DecodeUserOpenid(ctx context.Context, openid string) (string, typez.Svc, uint64, *ae.Error) {
 	if len(openid) < configz.OpenidEncodeSvcLen {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
-	svc, ok := parseSvcId(openid[0:configz.OpenidEncodeSvcLen])
+	svc, ok := parseUserOpenidSvc(openid[0:configz.OpenidEncodeSvcLen])
 	if !ok {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
 
-	desKey, desIV, err := s.OpenidDesCBCKey(appid, secret)
-	if err != nil {
-		return 0, 0, ae.ErrorVariantAlsoNegotiates
+	appid, secret, e := s.secretHandler(ctx, s.app, svc)
+	if e != nil {
+		return "", 0, 0, e
 	}
-	d, e := coding.CbcDecryptFromBase64([]byte(openid[configz.OpenidEncodeSvcLen:]), desKey, desIV)
-	if e != nil || len(d) < 16 {
-		return 0, 0, ae.ErrorVariantAlsoNegotiates
+
+	desKey, desIV, e := s.UserOpenidDesCBCKey(appid, secret)
+	if e != nil {
+		return "", 0, 0, e
+	}
+	d, err := coding.CbcDecryptFromBase64([]byte(openid[configz.OpenidEncodeSvcLen:]), desKey, desIV)
+	if err != nil || len(d) < 16 {
+		return "", 0, 0, ae.ErrorVariantAlsoNegotiates
 	}
 	aha := string(d[0:16]) // appid 的 hash
 	factor := string(d[16:])
 	h := md5.Sum(append([]byte(appid), factor...))
 	ha := hex.EncodeToString(h[:])
 	if aha != ha[8:24] {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
 	var lts uint64
 	if lts, _ = strconv.ParseUint(factor[0:1], 36, 8); lts == 0 {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
 	now := time.Now().Unix()
 	ts, _ := strconv.ParseInt(factor[1:lts+1], 36, 64)
 	if ts < now {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
 
 	xu, _ := strconv.ParseInt(factor[lts+1:], 36, 64)
 	if xu == 0 {
-		return 0, 0, ae.ErrorPreconditionFailed
+		return "", 0, 0, ae.ErrorPreconditionFailed
 	}
 	uid := uint64(xu + ts)
-	return svc, uid, nil
+	return appid, svc, uid, nil
 }
 
-func (s *Service) ParseOpenid(ictx iris.Context, uid uint64, appidConfigKey, secretConfigKey string) (appid string, svc typez.Svc, openUid uint64, e *ae.Error) {
+func (s *Service) ParseUserOpenid(ictx iris.Context, uid uint64) (appid string, svc typez.Svc, openUid uint64, e *ae.Error) {
 	openid := ictx.GetHeader(enumz.HeaderOpenid)
 	if openid == "" {
 		e = ae.New(ae.PreconditionRequired, "require openid")
 		return
 	}
-	var err error
-	if appid, err = s.app.Config.MustGetString(appidConfigKey); err != nil {
-		e = ae.BadConfig(appidConfigKey)
-		return
-	}
-	var secret string
-	if secret, err = s.app.Config.MustGetString(secretConfigKey); err != nil {
-		e = ae.BadConfig(secretConfigKey)
-		return
-	}
+	ctx := acontext.FromIris(ictx)
 
-	svc, openUid, e = s.DecodeOpenid(openid, appid, secret)
+	appid, svc, openUid, e = s.DecodeUserOpenid(ctx, openid)
 	if e != nil {
 		s.app.Log.Warn(acontext.FromIris(ictx), "openid:%s, %s", openid, e.Text())
 		return

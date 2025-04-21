@@ -59,7 +59,7 @@ func Uid(ictx iris.Context, requireVuid bool) (svc typez.Svc, uid, vuid uint64, 
 	return svc, uid, vuid, vuid > 0
 }
 
-//func ParseOpenid(app *aa.App, ictx iris.Context, uid uint64) (appid string, svc typez.Svc, e *ae.Error) {
+//func ParseUserOpenid(app *aa.App, ictx iris.Context, uid uint64) (appid string, svc typez.Svc, e *ae.Error) {
 //	//ctx.URLParam("lastname") == ctx.Request().URL.Query().Get("lastname")
 //	openid := ictx.GetHeader(enumz.HeaderOpenid)
 //	if openid == "" {
