@@ -21,6 +21,7 @@ const (
 	ParamTaWeixinState        = "state"
 	ParamAppid                = "appid" // 不用header，这样对于一些git hook等兼容性更强
 	ParamSign                 = "sign"  // 不用header，这样对于一些git hook等兼容性更强
+	ParamCallback             = "callback"
 
 	HeaderMmcFingerprint = "X-MMC-Fingerprint"
 	HeaderOpenid         = "X-Openid"

@@ -12,41 +12,59 @@ import (
 	"time"
 )
 
-// DebugMyCookies 用于微信H5、小程序等调试
-func (s *Service) DebugMyCookies() func(iris.Context) {
-	return func(ictx iris.Context) {
-		defer ictx.Next()
-		debugToken := request.QueryWild(ictx, enumz.ParamDebugToken)
-		if debugToken != configz.DebugToken {
-			response.JsonE(ictx, ae.ErrorPageExpired)
+func parseCookies(ictx iris.Context) map[string]any {
+	cookies := map[string]any{
+		"server_time":   atype.Now(s.loc),
+		"time_location": s.app.Config.TimeLocation.String(),
+	}
+	ctx := acontext.FromIris(ictx)
+	ictx.VisitAllCookies(func(k, v string) {
+		cookies[k] = v
+		if enumz.ParamAccessToken != k {
 			return
 		}
-		cookies := map[string]any{
-			"server_time":   atype.Now(s.loc),
-			"time_location": s.app.Config.TimeLocation.String(),
+		svc, uid, vuid, ua, psid, authAt, expiresIn, factor, _, e := s.DbgDecryptUserToken(ctx, v)
+		if e != nil {
+			cookies["decrypt_token_error"] = e.Text()
+		} else {
+			cookies["decrypt_token"] = map[string]any{
+				"svc":        svc,
+				"uid":        uid,
+				"vuid":       vuid,
+				"UA":         ua.Name(),
+				"psid":       psid,
+				"auth_at":    time.Unix(authAt, 0).In(s.app.Config.TimeLocation).Format(s.app.Config.TimeFormat),
+				"expires_in": time.Unix(authAt, 0).Add(time.Duration(expiresIn) * time.Second).In(s.app.Config.TimeLocation).Format(s.app.Config.TimeFormat),
+				"factor":     factor,
+			}
 		}
-		ctx := acontext.FromIris(ictx)
+	})
+	return cookies
+}
 
-		ictx.VisitAllCookies(func(k, v string) {
-			cookies[k] = v
-			if enumz.ParamAccessToken != k {
-				return
-			}
-			svc, uid, vuid, ua, psid, authAt, expiresIn, factor, _, e := s.DbgDecryptUserToken(ctx, v)
-			if e != nil {
-				cookies["decrypt_token_error"] = e.Text()
-			} else {
-				cookies["decrypt_token"] = map[string]any{
-					"svc":        svc,
-					"uid":        uid,
-					"vuid":       vuid,
-					"UA":         ua.Name(),
-					"psid":       psid,
-					"auth_at":    time.Unix(authAt, 0).In(s.app.Config.TimeLocation).Format(s.app.Config.TimeFormat),
-					"expires_in": time.Unix(authAt, 0).Add(time.Duration(expiresIn) * time.Second).In(s.app.Config.TimeLocation).Format(s.app.Config.TimeFormat),
-					"factor":     factor,
-				}
-			}
-		})
+// DebugMyCookies 用于微信H5、小程序等调试
+func (s *Service) DebugMyCookies(ictx iris.Context) {
+	defer ictx.Next()
+	debugToken := request.QueryWild(ictx, enumz.ParamDebugToken)
+	if debugToken != configz.DebugToken {
+		response.JsonE(ictx, ae.ErrorPageExpired)
+		return
 	}
+	cookies := parseCookies(ictx)
+	response.JSON(ictx, cookies)
+}
+
+func (s *Service) DebugMyCookiesJSONP(ictx iris.Context) {
+	defer ictx.Next()
+	callback := request.QueryWild(ictx, enumz.ParamCallback)
+	debugToken := request.QueryWild(ictx, enumz.ParamDebugToken)
+	if debugToken != configz.DebugToken {
+		response.JsonE(ictx, ae.ErrorPageExpired)
+		return
+	}
+	cookies := parseCookies(ictx)
+	if callback == "" {
+		callback = enumz.ParamCallback
+	}
+	ictx.JSONP(cookies, iris.JSONP{Callback: callback})
 }
