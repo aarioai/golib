@@ -45,7 +45,7 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 		vericode = coding.RandNum(r.VericodeLen)
 	}
 
-	if !s.h.CacheSmsVericode(ctx, r.Country, r.PhoneNumber, vericode, r.PseudoId) {
+	if !s.h.CacheSmsVericode(ctx, r.Country, r.PhoneNumber, r.PseudoId, vericode) {
 		return NewE("cache vericode failed")
 	}
 	req := aliyun.VericodeRequest{
@@ -59,7 +59,7 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 	return s.SendAliyunVericode(req)
 }
 
-func (s *Service) VerifySmsVericode(ctx context.Context, cn aenum.Country, phoneNum, vericode, pseudoId string) *ae.Error {
+func (s *Service) VerifySmsVericode(ctx context.Context, cn aenum.Country, phoneNum, pseudoId, vericode string) *ae.Error {
 	t := mo.SmsVerifyLog{
 		Id:       primitive.NewObjectID(),
 		Country:  cn,

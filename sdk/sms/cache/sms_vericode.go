@@ -81,7 +81,7 @@ func (h *Cache) LoadAndDeleteVericode(ctx context.Context, cn aenum.Country, pho
 	return vericode, h.app.CheckErrors(ctx, err)
 }
 
-func (h *Cache) CacheSmsVericode(ctx context.Context, cn aenum.Country, phone, vericode, pseudoId string) bool {
+func (h *Cache) CacheSmsVericode(ctx context.Context, cn aenum.Country, phone, pseudoId, vericode string) bool {
 	rdb, ok := h.rdb(ctx)
 	if !ok {
 		return false

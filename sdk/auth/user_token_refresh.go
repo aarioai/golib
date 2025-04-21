@@ -90,7 +90,7 @@ func (s *Service) RefreshUserToken(ctx context.Context, rtoken, currentPsid stri
 	if now > refreshTokenExp {
 		return nil, ae.ErrorPageExpired
 	}
-
+	
 	admin, e := checkUser(ctx, uid)
 	if e != nil {
 		return nil, e

@@ -1,5 +1,17 @@
 package dtoz
 
+//	type SimpleUser struct {
+//		Authorization string          `json:"authorization,omitempty" db:"authorization"`
+//		AuthorizedAt  time.Time       `json:"authorized_at,omitempty" db:"authorized_at"`
+//		ID            string          `json:"id,omitempty" db:"id"`
+//		Username      string          `json:"username,omitempty" db:"username"`
+//		PasswordCipher      string          `json:"password,omitempty" db:"password"`
+//		Email         string          `json:"email,omitempty" db:"email"`
+//		Roles         []string        `json:"roles,omitempty" db:"roles"`
+//		Token         json.RawMessage `json:"token,omitempty" db:"token"`
+//		Fields        Map             `json:"fields,omitempty" db:"fields"`
+//	}
+
 type Token struct {
 	// @doc https://www.rfc-editor.org/rfc/rfc6749#section-4.2.2
 	// 标准参数： access_token, expires_in, scope, state, token_type

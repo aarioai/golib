@@ -17,7 +17,6 @@ func AuthTime(ttl int64) time.Time {
 	return time.Unix(authAt, 0)
 }
 
-// PackUserToken 这里最好用string,因为 []byte是指针
 func PackUserToken(secure bool, atoken, rtoken string, expiresIn, refreshTokenTTL int64, admin typez.AdminLevel, scope map[string]any, conflict bool) dtoz.Token {
 	if admin.Valid() {
 		if scope == nil {
