@@ -12,9 +12,10 @@ type Service struct {
 	app                 *aa.App
 	loc                 *time.Location
 	h                   *cache.Cache
-	pubDERBase64KeyName string // rsa public key in config key name
-	privDERKeyName      string // rsa private key in config key name
-	gcmKeyName          string // gcm secret in config key name
+	disable             bool
+	pubDERBase64KeyName string
+	privDERKeyName      string
+	gcmKeyName          string
 }
 
 var (
@@ -22,16 +23,26 @@ var (
 	s    *Service
 )
 
-func New(app *aa.App, redisConfigSection, pubDERBase64KeyName, privDERConfigKeyName, gcmKeyName string) *Service {
+func New(app *aa.App, redisConfigSection, pubDERBase64KeyName, privDERKeyName, gcmKeyName string) *Service {
 	once.Do(func() {
 		s = &Service{app: app,
 			loc:                 app.Config.TimeLocation,
 			h:                   cache.New(app, redisConfigSection),
 			pubDERBase64KeyName: pubDERBase64KeyName,
-			privDERKeyName:      privDERConfigKeyName,
+			privDERKeyName:      privDERKeyName,
 			gcmKeyName:          gcmKeyName,
 		}
 	})
+	return s
+}
+
+func (s *Service) Disable() *Service {
+	s.disable = true
+	return s
+}
+
+func (s *Service) Enable() *Service {
+	s.disable = false
 	return s
 }
 

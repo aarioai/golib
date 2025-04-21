@@ -13,7 +13,7 @@ import (
 )
 
 // PostFingerprint Controller 人机对抗指纹，提供给mmcid加密
-func PostFingerprint(ictx iris.Context) {
+func (s *Service) PostFingerprint(ictx iris.Context) {
 	defer ictx.Next()
 	r, resp, ctx := httpsvr.New(ictx)
 	defer resp.CloseWith(r)
@@ -36,7 +36,7 @@ func PostFingerprint(ictx iris.Context) {
 	})
 }
 
-// FingerprintMiddleware Middleware 断言判断 fingerprint 是否验证成功
+// AssertFingerprint Middleware 断言判断 fingerprint 是否验证成功
 //  SpringMVC 中的Interceptor 拦截器也是相当重要和相当有用的，它的主要作用是拦截用户的请求并进行相应的处理。比如通过它来进行权限验证，或者是来判断用户是否登陆，或者是像12306 那样子判断当前时间是否是购票时间。
 
 // Man-machine confrontation  人机对抗
@@ -45,13 +45,19 @@ func PostFingerprint(ictx iris.Context) {
   2. mmcid 相当于
 */
 
-func (s *Service) FingerprintMiddleware(ictx iris.Context) {
+func (s *Service) AssertFingerprint(ictx iris.Context) {
+	ctx := acontext.FromIris(ictx)
+	if s.disable {
+		s.app.Log.Warn(ctx, "sdk_auth_mmc: fingerprint is disabled")
+		ictx.Next()
+		return
+	}
 	fingerprint := ictx.GetHeader(enumz.HeaderMmcFingerprint)
 	if fingerprint == "" {
 		response.JsonE(ictx, ae.NewBadParam(enumz.HeaderMmcFingerprint))
 		return
 	}
-	ctx := acontext.FromIris(ictx)
+
 	// 不对apollo传错提示
 	apollo := request.QueryWild(ictx, enumz.ParamApollo)
 	_, err := typez.DecodeDeviceInfo(apollo)

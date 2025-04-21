@@ -9,7 +9,6 @@ import (
 const (
 	fpHeaderLength           = 10
 	fpBodySegmentLength      = 6
-	base64EncodeURL          = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 	fingerprintSeparator     = "(^_^)"
 	fingerprintValidDuration = 30 * time.Minute
 )
