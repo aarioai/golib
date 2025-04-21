@@ -132,11 +132,3 @@ func DeviceInfo(ictx iris.Context) typez.DeviceInfo {
 	setDeviceInfo(ictx, *devi)
 	return *devi
 }
-
-func SetFingerprintServerTime(ictx iris.Context, ms int64) {
-	ictx.Values().Set(enumz.IctxParamFingerprintServerTime, ms)
-}
-func FingerprintServerTime(ictx iris.Context) int64 {
-	ms, _ := ictx.Values().GetInt64(enumz.IctxParamFingerprintServerTime)
-	return ms
-}

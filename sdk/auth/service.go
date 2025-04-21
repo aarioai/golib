@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
+	"github.com/aarioai/airis/pkg/afmt"
 	"github.com/aarioai/golib/lib/code/coding"
 	"github.com/aarioai/golib/sdk/auth/cache"
 	"github.com/aarioai/golib/sdk/auth/configz"
@@ -26,24 +27,30 @@ var (
 func New(app *aa.App, redisConfigSection string, withVuid bool) *Service {
 	once.Do(func() {
 		CheckConfig()
-		ca := cache.New(app, redisConfigSection)
 		s = &Service{app: app,
 			loc:      app.Config.TimeLocation,
-			h:        ca,
+			h:        cache.New(app, redisConfigSection),
 			withVuid: withVuid,
 		}
 	})
 	return s
 }
+
+func NewCode(code int, format string, args ...any) *ae.Error {
+	return ae.New(code, afmt.Sprintf("libsdk_auth: "+format, args...))
+}
+
 func NewE(format string, args ...any) *ae.Error {
 	return ae.NewE("libsdk_auth: "+format, args...)
 }
+
 func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
 	return ae.NewE("libsdk_auth: " + err.Error())
 }
+
 func panicOnEmpty(name, s string) {
 	if s != "" {
 		return

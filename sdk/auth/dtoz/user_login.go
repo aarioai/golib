@@ -10,11 +10,11 @@ type Token struct {
 	TokenType   string         `json:"token_type"` // Bearer  --> 客户端上传header: Authorization: Bearer $access_token
 
 	// 下面是非标准参数
-	Conflict     bool   `json:"conflict"` // 是否冲突；一般之前登录后，通过第三方授权登录发生vuid不一致，使用授权登录的vuid取代之前登录的vuid
-	RefreshAPI   string `json:"refresh_api"`
-	RefreshToken string `json:"refresh_token"` // optional
-	RefreshTTL   int64  `json:"refresh_ttl"`   // time to live in seconds
-	Secure       bool   `json:"secure"`        // 是否安全 --> 如果是通过psid登录的，则就不安全
-	ValidateAPI  string `json:"validate_api"`  // validate client's access token is still available
+	Conflict     bool           `json:"conflict"` // 是否冲突；一般之前登录后，通过第三方授权登录发生vuid不一致，使用授权登录的vuid取代之前登录的vuid
+	RefreshAPI   string         `json:"refresh_api"`
+	RefreshToken string         `json:"refresh_token"` // optional
+	RefreshTTL   int64          `json:"refresh_ttl"`   // time to live in seconds
+	Secure       bool           `json:"secure"`        // 是否安全 --> 如果是通过psid登录的，则就不安全
+	ValidateAPI  string         `json:"validate_api"`  // validate client's access token is still available
+	Attach       map[string]any `json:"attach"`
 }
- 
