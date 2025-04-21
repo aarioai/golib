@@ -99,7 +99,7 @@ func (s *Service) RefreshUserToken(ctx context.Context, rtoken, currentPsid stri
 	expiresIn := authAt + configz.UserRefreshTokenTTLs - now // token 剩余时间（秒）
 	if expiresIn > configz.UserTokenWillRefresh {
 		rtokenExpiresIn := refreshTokenExp - now
-		t := packUserToken(secureLogin, atoken, rtoken, expiresIn, rtokenExpiresIn, admin, nil, false)
+		t := PackUserToken(secureLogin, atoken, rtoken, expiresIn, rtokenExpiresIn, admin, nil, false)
 		return &t, nil
 	}
 

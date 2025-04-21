@@ -17,8 +17,8 @@ func AuthTime(ttl int64) time.Time {
 	return time.Unix(authAt, 0)
 }
 
-// 这里最好用string,因为 []byte是指针
-func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTTL int64, admin typez.AdminLevel, scope map[string]any, conflict bool) dtoz.Token {
+// PackUserToken 这里最好用string,因为 []byte是指针
+func PackUserToken(secure bool, atoken, rtoken string, expiresIn, refreshTokenTTL int64, admin typez.AdminLevel, scope map[string]any, conflict bool) dtoz.Token {
 	if admin.Valid() {
 		if scope == nil {
 			scope = make(map[string]any, 1)
@@ -36,7 +36,7 @@ func packUserToken(secure bool, atoken string, rtoken string, expiresIn, tokenTT
 		ExpiresIn:    expiresIn,
 		RefreshToken: rtoken,
 		RefreshAPI:   configz.RefreshAPI,
-		RefreshTTL:   tokenTTL,
+		RefreshTTL:   refreshTokenTTL,
 		Secure:       secure,
 
 		Scope: scope,
@@ -64,7 +64,7 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 	}
 
 	ui := configz.UserTokenTTLs
-	t := packUserToken(secureLogin, atoken, rtoken, ui, configz.UserRefreshTokenTTLs, admin, nil, conflict)
+	t := PackUserToken(secureLogin, atoken, rtoken, ui, configz.UserRefreshTokenTTLs, admin, nil, conflict)
 	return &t, nil
 }
 
