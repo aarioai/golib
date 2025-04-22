@@ -12,6 +12,7 @@ require (
 	github.com/mssola/useragent v1.0.0
 	github.com/prometheus/client_golang v1.22.0
 	github.com/redis/go-redis/v9 v9.7.3
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.20
 	go.mongodb.org/mongo-driver v1.17.3
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0
 )
