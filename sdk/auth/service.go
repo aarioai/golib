@@ -11,10 +11,9 @@ import (
 )
 
 type Service struct {
-	app      *aa.App
-	loc      *time.Location
-	h        *cache.Cache
-	withVuid bool
+	app *aa.App
+	loc *time.Location
+	h   *cache.Cache
 }
 
 var (
@@ -22,12 +21,11 @@ var (
 	s    *Service
 )
 
-func New(app *aa.App, redisConfigSection string, withVuid bool) *Service {
+func New(app *aa.App, redisConfigSection string) *Service {
 	once.Do(func() {
 		s = &Service{app: app,
-			loc:      app.Config.TimeLocation,
-			h:        cache.New(app, redisConfigSection),
-			withVuid: withVuid,
+			loc: app.Config.TimeLocation,
+			h:   cache.New(app, redisConfigSection),
 		}
 	})
 	return s

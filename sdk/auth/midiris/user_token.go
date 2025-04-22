@@ -3,6 +3,7 @@ package midiris
 import (
 	"github.com/aarioai/airis/aa/acontext"
 	"github.com/aarioai/golib/enumz"
+	"github.com/aarioai/golib/sdk/auth/configz"
 	"github.com/aarioai/golib/typez"
 	"github.com/kataras/iris/v12"
 	"strconv"
@@ -39,7 +40,7 @@ func SetUid(ictx iris.Context, svc typez.Svc, uid, vuid uint64) bool {
 
 // Uid
 // @note token 依赖于 UA，使用Chrome调试切换PC/Phone的时候，token 不可复用！！！
-func Uid(ictx iris.Context, requireVuid bool) (svc typez.Svc, uid, vuid uint64, ok bool) {
+func Uid(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ok bool) {
 	var err error
 	// UID 获取已经授权的UID。权限验证统一在middleware层处理，controller层不用再多此一举了
 	uid, err = ictx.Values().GetUint64(enumz.IctxParamUid)
@@ -52,7 +53,7 @@ func Uid(ictx iris.Context, requireVuid bool) (svc typez.Svc, uid, vuid uint64, 
 		svc = typez.Svc(sv)
 	}
 
-	if !requireVuid {
+	if !configz.RequireVuid {
 		return svc, uid, 0, true
 	}
 	vuid, _ = ictx.Values().GetUint64(enumz.IctxParamVuid)

@@ -14,7 +14,7 @@ func (s *Service) GrantUserOpenid(ictx iris.Context) {
 	r, resp, ctx := httpsvr.New(ictx)
 	defer resp.CloseWith(r)
 
-	svc, uid, _, ok := midiris.Uid(ictx, false)
+	svc, uid, _, ok := midiris.Uid(ictx)
 	if !ok {
 		resp.WriteE(ae.ErrorUnauthorized)
 		return

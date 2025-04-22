@@ -105,7 +105,7 @@ func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid,
 // LoadUserAuthorization parse user authorization then set them into context
 func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
 	var ok bool
-	if svc, uid, vuid, ok = midiris.Uid(ictx, s.withVuid); ok {
+	if svc, uid, vuid, ok = midiris.Uid(ictx); ok {
 		return
 	}
 	svc, uid, vuid, _, _, e = s.ParseUserAuthorization(ictx)
