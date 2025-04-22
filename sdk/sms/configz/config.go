@@ -3,7 +3,7 @@ package configz
 import "time"
 
 var (
-	SmsLogDbPrefix = "sdk_"
+	SmsLogDbPrefix = "libsdk_"
 
 	AliyunDefaultRegionId = "cn-hangzhou"
 
