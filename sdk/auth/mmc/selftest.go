@@ -10,6 +10,9 @@ import (
 )
 
 func (s *Service) SelfTest() {
+	if s.disable {
+		return
+	}
 	s.testSecretKeyConfigs()
 	s.testRSA()
 	s.testFingerprint()
