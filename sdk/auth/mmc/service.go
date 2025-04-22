@@ -3,6 +3,7 @@ package mmc
 import (
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
+	"github.com/aarioai/airis/pkg/afmt"
 	"github.com/aarioai/golib/sdk/auth/cache"
 	"sync"
 	"time"
@@ -55,4 +56,11 @@ func NewError(err error) *ae.Error {
 		return nil
 	}
 	return ae.NewE("libsdk_auth_mmc: " + err.Error())
+}
+
+func panicE(msg string, e *ae.Error) {
+	panic("libsdk_auth_mmc: " + msg + " " + e.Text())
+}
+func panicMsg(msg string, args ...any) {
+	panic(afmt.Sprintf("libsdk_auth_mmc: "+msg, args...))
 }

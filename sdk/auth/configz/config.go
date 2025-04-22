@@ -7,7 +7,7 @@ import (
 var (
 	UserTokenCryptMd5Key = "" // 除了#;:空格和换行符（ini和yaml注释符号）任意长度任意英文字符串，如 fg)bwM&umi!uEm$x(
 	UserTokenShuffleBase = "" //  将 _0123456789abcdefghijklmnopqrstuvwxyz 乱序后使用
-
+	
 	UserTokenType = "Bearer"
 	ValidateAPI   = "HEAD /api/v1/pas/auth/access_token"
 	RefreshAPI    = "PUT /api/v1/pas/auth/access_token"

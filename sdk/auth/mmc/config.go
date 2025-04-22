@@ -19,12 +19,12 @@ func NewFingerprintId() uint64 {
 	return coding.Uint64Id(&AtomicFingerprintIdSeq)
 }
 
-func (s *Service) MmcRSAPubkeyDERBase64() (string, error) {
+func (s *Service) rsaPubDERBase64() (string, error) {
 	return s.app.Config.MustGetString(s.pubDERBase64KeyName)
 }
-func (s *Service) mmcRSAPrivkeyDER() (string, error) {
+func (s *Service) rsaPrivDER() (string, error) {
 	return s.app.Config.MustGetString(s.privDERKeyName)
 }
-func (s *Service) mmcGCMKey() (string, error) {
+func (s *Service) gcmKey() (string, error) {
 	return s.app.Config.MustGetString(s.gcmKeyName)
 }

@@ -5,9 +5,7 @@ import (
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/afmt"
-	"github.com/aarioai/golib/lib/code/coding"
 	"github.com/aarioai/golib/sdk/auth/cache"
-	"github.com/aarioai/golib/sdk/auth/configz"
 	"sync"
 	"time"
 )
@@ -26,7 +24,6 @@ var (
 
 func New(app *aa.App, redisConfigSection string, withVuid bool) *Service {
 	once.Do(func() {
-		CheckConfig()
 		s = &Service{app: app,
 			loc:      app.Config.TimeLocation,
 			h:        cache.New(app, redisConfigSection),
@@ -51,14 +48,16 @@ func NewError(err error) *ae.Error {
 	return ae.NewE("libsdk_auth: " + err.Error())
 }
 
+func panicE(msg string, e *ae.Error) {
+	panic("libsdk_auth: " + msg + " " + e.Text())
+}
+func panicMsg(msg string, args ...any) {
+	panic(afmt.Sprintf("libsdk_auth: "+msg, args...))
+}
+
 func panicOnEmpty(name, s string) {
 	if s != "" {
 		return
 	}
 	panic(fmt.Sprintf("libsdk_auth: configz.%s not set", name))
-}
-func CheckConfig() {
-	panicOnEmpty("UserTokenCryptMd5Key", configz.UserTokenCryptMd5Key)
-	panicOnEmpty("UserTokenShuffleBase", configz.UserTokenShuffleBase)
-	coding.ValidateShuffleEncryptKeys(configz.UserTokenShuffleBase)
 }

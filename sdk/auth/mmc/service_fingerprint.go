@@ -41,7 +41,7 @@ func (s *Service) decodeFingerprintClientDeskey(rsaKeyBase64Raw []byte) ([]byte,
 	if err != nil {
 		return nil, err
 	}
-	rsaPrivkey, err := s.mmcRSAPrivkeyDER()
+	rsaPrivkey, err := s.rsaPrivDER()
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (s *Service) EncryptFingerprint(record []byte, apollo, userAgent, ip, uuid 
 	dr.WriteString(fingerprintSeparator)
 	dr.Write(record)
 
-	secret, err := s.mmcGCMKey()
+	secret, err := s.gcmKey()
 	if err != nil {
 		return nil, NewE("get mmc secret failed " + err.Error())
 	}
@@ -174,7 +174,7 @@ func (s *Service) EncryptFingerprint(record []byte, apollo, userAgent, ip, uuid 
 }
 
 func (s *Service) DecryptFingerprint(fingerprint []byte) (record []byte, encryptTimeMs int64, apollo, userAgent, ip, uuid string, e *ae.Error) {
-	secret, err := s.mmcGCMKey()
+	secret, err := s.gcmKey()
 	if err != nil {
 		e = NewE("get mmc secret failed " + err.Error())
 		return
