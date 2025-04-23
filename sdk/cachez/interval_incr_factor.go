@@ -3,7 +3,7 @@ package cachez
 import (
 	"context"
 	"crypto/rand"
-	"github.com/aarioai/airis-driver/driver/redishelper"
+	"github.com/aarioai/airis-driver/driver/redisx"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/types"
 	"github.com/redis/go-redis/v9"
@@ -14,7 +14,7 @@ import (
 // Interval Increment Factor 具有时效的，递增数字
 
 func incrFactorKeyName(prefix string, intervalDays uint8, prev bool) string {
-	return redishelper.DailyKey(intervalDays, prev, func(n uint8) string {
+	return redisx.DailyKey(intervalDays, prev, func(n uint8) string {
 		return prefix + types.FormatUint8(n)
 	})
 }
@@ -38,7 +38,7 @@ func IncrFactor(ctx context.Context, rdb *redis.Client, ttl time.Duration, field
 		incrMax = 1
 	}
 
-	factor, e := redishelper.HIncrBy(ctx, rdb, ttl, k, field, incrMax)
+	factor, e := redisx.HIncrBy(ctx, rdb, ttl, k, field, incrMax)
 	if e != nil {
 		return 0, e
 	}
