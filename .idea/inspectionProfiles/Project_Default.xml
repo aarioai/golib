@@ -28,6 +28,7 @@
         <method importPath="github.com/aarioai/airis/aa/httpsvr/response" receiver="*Writer" name="Write" />
         <method importPath="github.com/aarioai/airis/aa/httpsvr/response" receiver="*Writer" name="CloseWith" />
         <method importPath="github.com/aarioai/airis/aa/httpsvr/response" receiver="*Writer" name="WriteE" />
+        <method importPath="database/sql" receiver="*Rows" name="Close" />
       </methods>
     </inspection_tool>
     <inspection_tool class="GoUnusedExportedFunction" enabled="false" level="WARNING" enabled_by_default="false" />

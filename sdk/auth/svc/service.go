@@ -1,20 +1,21 @@
-package openid
+package svc
 
 import (
-	"context"
+	"github.com/aarioai/airis-driver/driver"
+	"github.com/aarioai/airis-driver/driver/sqlhelper"
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/afmt"
-	"github.com/aarioai/golib/typez"
+	"github.com/aarioai/golib/sdk/auth/cache"
 	"sync"
 	"time"
 )
 
 type Service struct {
-	app *aa.App
-	loc *time.Location
-	//h             *cache.Cache
-	secretHandler func(ctx context.Context, app *aa.App, svc typez.Svc) (appid, secret string, e *ae.Error)
+	app                *aa.App
+	loc                *time.Location
+	h                  *cache.Cache
+	mysqlConfigSection string
 }
 
 var (
@@ -22,12 +23,12 @@ var (
 	s    *Service
 )
 
-func New(app *aa.App, secretHandler func(ctx context.Context, app *aa.App, svc typez.Svc) (string, string, *ae.Error)) *Service {
+func New(app *aa.App, redisConfigSection, mysqlConfigSection string) *Service {
 	once.Do(func() {
 		s = &Service{app: app,
-			loc: app.Config.TimeLocation,
-			//h:             cache.New(app, redisConfigSection),
-			secretHandler: secretHandler,
+			loc:                app.Config.TimeLocation,
+			h:                  cache.New(app, redisConfigSection),
+			mysqlConfigSection: mysqlConfigSection,
 		}
 	})
 	return s
@@ -46,4 +47,8 @@ func NewError(err error) *ae.Error {
 		return nil
 	}
 	return ae.NewE("libsdk_auth_openid: " + err.Error())
+}
+
+func (s *Service) DB() *sqlhelper.DB {
+	return sqlhelper.NewDriver(driver.NewMysqlPool(s.app, s.mysqlConfigSection))
 }

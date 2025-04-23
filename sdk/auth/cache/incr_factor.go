@@ -22,7 +22,7 @@ func toUserTokenFactorField(svc typez.Svc, uid uint64, ua enumz.UA) string {
 	if svc.Valid() {
 		s = svc.String() + ":"
 	}
-	return s + "uid:" + u + ":ua:" + ua.String()
+	return s + ":" + u + ":" + ua.String()
 }
 func incrUserTokenKeyPrefix() string {
 	return configz.CachePrefix + "user_token_factor:"
@@ -36,10 +36,7 @@ func (h *Cache) IncrUserTokenFactor(ctx context.Context, svc typez.Svc, uid uint
 	field := toUserTokenFactorField(svc, uid, ua)
 	ttl := time.Duration(configz.UserRefreshTokenTTLs) * time.Second
 	factor, e := cachez.IncrFactor(ctx, rdb, ttl, field, prefix, configz.UserTokenIntervalDays, 3)
-	if !h.app.Check(ctx, e) {
-		return 0, false
-	}
-	return factor, true
+	return factor, h.app.Check(ctx, e)
 }
 
 func (h *Cache) LoadUserTokenFactor(ctx context.Context, svc typez.Svc, uid uint64, ua enumz.UA) (int64, bool) {

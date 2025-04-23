@@ -49,7 +49,7 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 	authAt := time.Now().Unix()
 	factor, ok := s.h.IncrUserTokenFactor(ctx, svc, uid, ua)
 	if !ok {
-		return nil, NewE("incr user token factor failed")
+		return nil, NewE("incr user token factor failed, got factor: %d", factor)
 	}
 
 	atoken, e := s.encryptUserToken(svc, uid, vuid, ua, psid, authAt, factor, secureLogin)

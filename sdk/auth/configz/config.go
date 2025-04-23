@@ -14,6 +14,7 @@ var (
 	RefreshAPI    = "PUT /api/v1/pas/auth/access_token"
 
 	CachePrefix = "libsdk:auth:"
+	DbPrefix    = "libsdk_auth_"
 
 	UserTokenTimeWindow   = int64(10 * 60)         // 10分钟的时间窗口
 	UserTokenTTLs         = int64(12 * 3600)       //  time-to-life in seconds 客户端token 只保留12小时
@@ -25,7 +26,6 @@ var (
 
 	DebugToken = "-A_A-"
 
-	S2SConfigPrefix    = "arpc."
 	OpenidTTL          = 24 * time.Hour
 	OpenidEncodeSvcLen = 4
 )
