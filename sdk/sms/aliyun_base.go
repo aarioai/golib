@@ -2,6 +2,8 @@ package sms
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/atype"
 	"github.com/aarioai/golib/sdk/sms/aliyun"
@@ -30,6 +32,8 @@ func (s *Service) SendAliyunVericode(ctx context.Context, r aliyun.VericodeReque
 		}
 	}
 	res, e := s.aliyun.SendVericode(r)
+	d, _ := json.Marshal(res)
+	fmt.Println(string(d))
 	if !s.app.Check(ctx, e) {
 		log.SendStatus = enum.SendFailed
 		log.AckBizid = res.RequestId
