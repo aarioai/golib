@@ -34,10 +34,11 @@ type SmsRequest struct {
 }
 
 type VericodeRequest struct {
-	Sid         uint64        `json:"sid"`       // 发送批次ID
-	SignName    string        `json:"sign_name"` // 公司签名
-	Country     aenum.Country `json:"country_code"`
-	PhoneNumber string        `json:"phone_number"`
-	TplId       string        `json:"tpl_id"`
-	Vericode    string        `json:"vericode"`
+	Sid          uint64        `json:"sid"`       // 发送批次ID
+	SignName     string        `json:"sign_name"` // 公司签名
+	Country      aenum.Country `json:"country_code"`
+	PhoneNumber  string        `json:"phone_number"`
+	TplId        string        `json:"tpl_id"`
+	Vericode     string        `json:"vericode"`
+	VericodeName string        `json:"vericode_name"`
 }

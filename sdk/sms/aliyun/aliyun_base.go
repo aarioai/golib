@@ -50,6 +50,10 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 }
 
 func (s *Aliyun) SendVericode(r VericodeRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
+	key := r.VericodeName
+	if key == "" {
+		key = "vericode"
+	}
 	sr := SmsRequest{
 		Sid:          r.Sid,
 		SignName:     r.SignName,
@@ -57,7 +61,7 @@ func (s *Aliyun) SendVericode(r VericodeRequest) (*dysmsapi.SendSmsResponse, *ae
 		PhoneNumbers: []string{r.PhoneNumber},
 		TplId:        r.TplId,
 		TplParams: map[string]string{
-			"vericode": r.Vericode,
+			key: r.Vericode,
 		},
 	}
 	return s.Send(sr)
