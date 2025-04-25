@@ -21,7 +21,8 @@ type VericodeSMSRequest struct {
 	PhoneNumber string        `json:"phone_number"`
 	TplId       string        `json:"tpl_id"`
 
-	VericodeLen int `json:"vericode_len"`
+	VericodeLen  int    `json:"vericode_len"`
+	VericodeName string `json:"vericode_name"`
 }
 
 func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSRequest) *ae.Error {
@@ -46,15 +47,16 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 	}
 
 	if !s.h.CacheSmsVericode(ctx, r.Country, r.PhoneNumber, r.PseudoId, vericode) {
-		return NewE("cache vericode failed")
+		return ae.ErrorCacheFailed
 	}
 	req := aliyun.VericodeRequest{
-		Sid:         r.Sid,
-		SignName:    r.SignName,
-		Country:     r.Country,
-		PhoneNumber: r.PhoneNumber,
-		TplId:       r.TplId,
-		Vericode:    vericode,
+		Sid:          r.Sid,
+		SignName:     r.SignName,
+		Country:      r.Country,
+		PhoneNumber:  r.PhoneNumber,
+		TplId:        r.TplId,
+		Vericode:     vericode,
+		VericodeName: r.VericodeName,
 	}
 	return s.SendAliyunVericode(ctx, req)
 }
@@ -73,12 +75,12 @@ func (s *Service) VerifySmsVericode(ctx context.Context, cn aenum.Country, phone
 	if !ok {
 		t.Errmsg = "not found"
 		smsVerifyLog <- t
-		return ae.New(ae.PreconditionFailed, "vericode not found")
+		return ae.ErrorWrongVericode
 	}
 	if vcode != vericode {
 		t.Errmsg = "not match"
 		smsVerifyLog <- t
-		return ae.New(ae.PreconditionFailed, "vericode not match")
+		return ae.ErrorWrongVericode
 	}
 
 	smsVerifyLog <- t
