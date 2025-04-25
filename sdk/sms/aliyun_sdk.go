@@ -56,7 +56,7 @@ func (s *Service) SendAndCacheAliyunVericode(ctx context.Context, r VericodeSMSR
 		TplId:       r.TplId,
 		Vericode:    vericode,
 	}
-	return s.SendAliyunVericode(req)
+	return s.SendAliyunVericode(ctx, req)
 }
 
 func (s *Service) VerifySmsVericode(ctx context.Context, cn aenum.Country, phoneNum, pseudoId, vericode string) *ae.Error {

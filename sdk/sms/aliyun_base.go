@@ -1,6 +1,7 @@
 package sms
 
 import (
+	"context"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/atype"
 	"github.com/aarioai/golib/sdk/sms/aliyun"
@@ -10,7 +11,7 @@ import (
 
 // SendAliyunVericode
 // Suggest: SendAndCacheAliyunVericode
-func (s *Service) SendAliyunVericode(r aliyun.VericodeRequest) *ae.Error {
+func (s *Service) SendAliyunVericode(ctx context.Context, r aliyun.VericodeRequest) *ae.Error {
 	var log mo.SmsVericodeLog
 	if s.enableLog {
 		log = mo.SmsVericodeLog{
@@ -29,7 +30,7 @@ func (s *Service) SendAliyunVericode(r aliyun.VericodeRequest) *ae.Error {
 		}
 	}
 	res, e := s.aliyun.SendVericode(r)
-	if e != nil {
+	if !s.app.Check(ctx, e) {
 		log.SendStatus = enum.SendFailed
 		log.AckBizid = res.RequestId
 		log.AckMsg = "【" + r.SignName + "】" + e.Text()

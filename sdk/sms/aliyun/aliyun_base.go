@@ -2,6 +2,7 @@ package aliyun
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
 	"strconv"
@@ -15,7 +16,7 @@ func NewAliyunError(err error) *ae.Error {
 	return ae.NewError(err)
 }
 
-// sendAliyunSms 阿里云 签名公司名 和 模板 可以混合使用
+// Send 阿里云 签名公司名 和 模板 可以混合使用
 func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	if len(r.PhoneNumbers) == 0 {
 		return nil, ae.NewE("miss phone to send aliyun sms, %s, %s", r.SignName, r.TplId)
@@ -24,7 +25,7 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	if len(r.TplParams) > 0 {
 		params, _ = json.Marshal(r.TplParams)
 	}
-
+	fmt.Println(s.RegionId, s.AccessKey, s.AccessSecret, r.SignName, r.TplId, string(params), strings.Join(r.PhoneNumbers, ","))
 	client, err := dysmsapi.NewClientWithAccessKey(s.RegionId, s.AccessKey, s.AccessSecret)
 	if err != nil {
 		return nil, NewAliyunError(err)

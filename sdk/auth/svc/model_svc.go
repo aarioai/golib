@@ -7,7 +7,7 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 )
 
-func (s *Service) InsertSvc(ctx context.Context, t Svc) (Id, *ae.Error) {
+func (s *Service) Insert(ctx context.Context, t Svc) (Id, *ae.Error) {
 	db := s.DB()
 	qs := fmt.Sprintf(`
 		INSERT INTO %s SET
@@ -17,7 +17,22 @@ func (s *Service) InsertSvc(ctx context.Context, t Svc) (Id, *ae.Error) {
 	return Id(id), e
 }
 
-func (s *Service) FindSvc(ctx context.Context, id Id) (Svc, *ae.Error) {
+func (s *Service) DeleteSid(ctx context.Context, sid Sid) *ae.Error {
+	t := Svc{Sid: sid}
+	return s.DB().ORM(t).DeleteOne(ctx, "sid", t.Sid)
+}
+
+func (s *Service) DeletePK(ctx context.Context, id Id) *ae.Error {
+	t := Svc{Id: id}
+	return s.DB().ORM(t).DeletePK(ctx, id)
+}
+
+func (s *Service) ExistsSid(ctx context.Context, sid Sid) *ae.Error {
+	t := Svc{Sid: sid}
+	return s.DB().ORM(t).ExistsOne(ctx, "sid", t.Sid)
+}
+
+func (s *Service) Find(ctx context.Context, id Id) (Svc, *ae.Error) {
 	db := s.DB()
 	t := Svc{Id: id}
 	qs := fmt.Sprintf(`SELECT sid, name, logo, iconfont, status, created_at, updated_at FROM %s WHERE id=? LIMIT 1`, t.Table())
@@ -25,7 +40,7 @@ func (s *Service) FindSvc(ctx context.Context, id Id) (Svc, *ae.Error) {
 	return t, e
 }
 
-func (s *Service) SeekSvc(ctx context.Context, sid Sid) (Svc, *ae.Error) {
+func (s *Service) Seek(ctx context.Context, sid Sid) (Svc, *ae.Error) {
 	db := s.DB()
 	t := Svc{Sid: sid}
 	qs := fmt.Sprintf(`SELECT id, name, logo, iconfont, status, created_at, updated_at FROM %s WHERE sid=? LIMIT 1`, t.Table())
@@ -33,7 +48,7 @@ func (s *Service) SeekSvc(ctx context.Context, sid Sid) (Svc, *ae.Error) {
 	return t, e
 }
 
-func (s *Service) QuerySvc(ctx context.Context, name string) ([]Svc, *ae.Error) {
+func (s *Service) QueryName(ctx context.Context, name string) ([]Svc, *ae.Error) {
 	db := s.DB()
 	var t Svc
 	qs := fmt.Sprintf(`SELECT id, sid, logo, iconfont, status, created_at, updated_at FROM %s WHERE name=?`, t.Table())
@@ -57,7 +72,7 @@ func (s *Service) QuerySvc(ctx context.Context, name string) ([]Svc, *ae.Error) 
 	return ts, e
 }
 
-func (s *Service) SearchSvc(ctx context.Context, name string) ([]Svc, *ae.Error) {
+func (s *Service) SearchName(ctx context.Context, name string) ([]Svc, *ae.Error) {
 	db := s.DB()
 	var t Svc
 	qs := fmt.Sprintf(`SELECT id, sid, name, logo, iconfont, status, created_at, updated_at FROM %s WHERE name LIKE ?`, t.Table())
@@ -79,4 +94,14 @@ func (s *Service) SearchSvc(ctx context.Context, name string) ([]Svc, *ae.Error)
 		return nil, ae.ErrorNoRowsAvailable
 	}
 	return ts, e
+}
+
+func (s *Service) Alter(ctx context.Context, id Id, data map[string]any) *ae.Error {
+	t := Svc{Id: id}
+	return s.DB().ORM(t).Alter(ctx, id, data)
+}
+
+func (s *Service) AlterBySid(ctx context.Context, sid Sid, data map[string]any) *ae.Error {
+	t := Svc{Sid: sid}
+	return s.DB().ORM(t).AlterOne(ctx, "sid", sid, data)
 }
