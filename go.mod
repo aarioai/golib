@@ -3,9 +3,9 @@ module github.com/aarioai/golib
 go 1.23.6
 
 require (
-	github.com/aarioai/airis v0.1.191
+	github.com/aarioai/airis v0.1.193
 	github.com/aarioai/airis-driver v0.0.55
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.83
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-querystring v1.1.0
 	github.com/kataras/iris/v12 v12.2.11
