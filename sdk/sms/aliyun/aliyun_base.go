@@ -27,6 +27,7 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	}
 	fmt.Println(s.RegionId, s.AccessKey, s.AccessSecret, r.SignName, r.TplId, string(params), strings.Join(r.PhoneNumbers, ","))
 	client, err := dysmsapi.NewClientWithAccessKey(s.RegionId, s.AccessKey, s.AccessSecret)
+	fmt.Println(err)
 	if err != nil {
 		return nil, NewAliyunError(err)
 	}
@@ -38,6 +39,7 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	request.TemplateParam = string(params)
 	request.OutId = strconv.FormatUint(r.Sid, 10)
 	resp, err := client.SendSms(request)
+	fmt.Println(err)
 	if err != nil {
 		return nil, NewAliyunError(err)
 	}
