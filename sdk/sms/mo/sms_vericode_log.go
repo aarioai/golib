@@ -8,7 +8,7 @@ import (
 	"github.com/aarioai/golib/sdk/sms/enum"
 )
 
-// 短信验证码日志单独记录吧
+// SmsVericodeLog 短信验证码日志单独记录吧
 // 日志只能增加，不能修改/删除。如果存在先后顺序，需要分两张表
 type SmsVericodeLog struct {
 	Sid        uint64           `bson:"sid" json:"sid"` // sms id
@@ -18,7 +18,8 @@ type SmsVericodeLog struct {
 	PhonesNums atype.SepStrings `bson:"phone_nums" json:"phone_nums"`
 	MsgTpl     string           `bson:"msg_tpl" json:"msg_tpl"`
 	Vericode   string           `bson:"vericode" json:"vericode"`
-	AckBizid   string           `bson:"ack_bizid" json:"ack_bizid"`
+	RequestId  string           `bson:"request_id" json:"request_id"`
+	BizId      string           `bson:"biz_id" json:"biz_id"`
 	AckMsg     string           `bson:"ack_msg" json:"ack_msg"`
 	SendStatus enum.SendStatus  `bson:"send_status" json:"send_status"`
 	SendAt     atype.Datetime   `bson:"send_at" json:"send_at"`

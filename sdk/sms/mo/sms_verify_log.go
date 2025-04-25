@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// // 日志只能增加，不能修改/删除。如果存在先后顺序，需要分两张表
+// SmsVerifyLog 日志只能增加，不能修改/删除。如果存在先后顺序，需要分两张表
 type SmsVerifyLog struct {
 	Id        primitive.ObjectID `bson:"_id" json:"id"`
 	Country   aenum.Country      `bson:"country" json:"country"`

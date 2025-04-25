@@ -2,18 +2,21 @@ package aliyun
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
 	"strconv"
 	"strings"
 )
 
-func NewAliyunError(err error) *ae.Error {
+func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
 	return ae.NewError(err)
+}
+
+func NewE(msg string, args ...any) *ae.Error {
+	return ae.NewE(msg, args...)
 }
 
 // Send 阿里云 签名公司名 和 模板 可以混合使用
@@ -25,11 +28,9 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	if len(r.TplParams) > 0 {
 		params, _ = json.Marshal(r.TplParams)
 	}
-	fmt.Println(s.RegionId, s.AccessKey, s.AccessSecret, r.SignName, r.TplId, string(params), strings.Join(r.PhoneNumbers, ","))
 	client, err := dysmsapi.NewClientWithAccessKey(s.RegionId, s.AccessKey, s.AccessSecret)
-	fmt.Println(err)
 	if err != nil {
-		return nil, NewAliyunError(err)
+		return nil, NewError(err)
 	}
 	request := dysmsapi.CreateSendSmsRequest()
 	request.Scheme = "https"
@@ -39,9 +40,11 @@ func (s *Aliyun) Send(r SmsRequest) (*dysmsapi.SendSmsResponse, *ae.Error) {
 	request.TemplateParam = string(params)
 	request.OutId = strconv.FormatUint(r.Sid, 10)
 	resp, err := client.SendSms(request)
-	fmt.Println(err)
 	if err != nil {
-		return nil, NewAliyunError(err)
+		return nil, NewError(err)
+	}
+	if resp.Code != "OK" {
+		return nil, NewE("%s (%s)", resp.Message, resp.Code)
 	}
 	return resp, nil
 }
