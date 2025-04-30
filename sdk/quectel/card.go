@@ -61,7 +61,7 @@ type CardRealTimeStatus struct {
 		SurpFlow     string  `json:"surpFlow"`
 		TotalFlow    string  `json:"totalFlow"`
 		GprsStatus   string  `json:"gprsStatus"`
-		Ip           string  `json:"ip"`
+		IP           string  `json:"ip"`
 		UsedFlowb    float64 `json:"usedFlowb"`
 		SurpFlowb    float64 `json:"surpFlowb"`
 		TotalFlowb   float64 `json:"totalFlowb"`

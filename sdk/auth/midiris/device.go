@@ -14,9 +14,9 @@ import (
 
 var deviceInfoMtx sync.Mutex
 
-func ClientIP(ictx iris.Context) atype.Ip {
+func ClientIP(ictx iris.Context) atype.IP {
 	ipr := acontext.ClientIP(ictx)
-	return atype.ToIp(ipr)
+	return atype.ToIP(ipr)
 }
 
 func deviceInfo(ictx iris.Context) (*typez.DeviceInfo, bool) {
