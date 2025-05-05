@@ -66,6 +66,7 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 	t := PackUserToken(secureLogin, atoken, rtoken, ui, configz.UserRefreshTokenTTLs, admin, nil, conflict)
 	return &t, nil
 }
+
 func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, e *ae.Error) {
 	if atoken = midiris.AccessToken(ictx); atoken == "" {
 		e = ae.ErrorUnauthorized
