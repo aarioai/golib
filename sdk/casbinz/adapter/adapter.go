@@ -7,7 +7,6 @@ import (
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/afmt"
-	"github.com/casbin/casbin/v2/persist"
 )
 
 type Adapter struct {
@@ -15,7 +14,8 @@ type Adapter struct {
 	mysqlSection string
 }
 
-func New(app *aa.App, mysqlSection string) persist.Adapter {
+// New extends persist.Adapter
+func New(app *aa.App, mysqlSection string) *Adapter {
 	return &Adapter{
 		app:          app,
 		mysqlSection: mysqlSection,
