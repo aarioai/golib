@@ -22,6 +22,5 @@ func (t Policy) Table() string {
 func (t Policy) Indexes() index.Indexes {
 	return index.NewIndexes(
 		index.Primary("id"),
-		index.Index("role"),
 	)
 }

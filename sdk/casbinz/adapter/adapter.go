@@ -7,20 +7,8 @@ import (
 	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/afmt"
-	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 )
-
-func NewAdapterError(msg string, args ...any) error {
-	return errors.New(afmt.Sprintf("sdk_casbinz: adapter "+msg, args...))
-}
-
-func handleDriverError(e *ae.Error) error {
-	if e == nil || e.IsNotFound() {
-		return nil
-	}
-	return errors.New("sdk_casbinz: adapter " + e.Text())
-}
 
 type Adapter struct {
 	app          *aa.App
@@ -33,6 +21,18 @@ func New(app *aa.App, mysqlSection string) persist.Adapter {
 		mysqlSection: mysqlSection,
 	}
 }
+
 func (a *Adapter) db() *mysqli.DB {
 	return mysqli.NewDriver(driver.NewMysqlPool(a.app, a.mysqlSection))
+}
+
+func NewAdapterError(msg string, args ...any) error {
+	return errors.New(afmt.Sprintf("sdk_casbinz: adapter "+msg, args...))
+}
+
+func handleDriverError(e *ae.Error) error {
+	if e == nil || e.IsNotFound() {
+		return nil
+	}
+	return errors.New("sdk_casbinz: adapter " + e.Text())
 }

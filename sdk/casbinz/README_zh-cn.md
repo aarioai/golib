@@ -4,8 +4,6 @@ Casbin：这是一个用Go语言编写的开源访问控制库，支持多种访
 [github](https://github.com/casbin/casbin)
 
 
-
-
 | 技术	             | 主要功能	          | 优点	                       | 缺点                       | 	适用场景             |
 |-----------------|----------------|---------------------------|--------------------------|-------------------|
 | **RBAC**        | 基于角色的访问控制      | 简单易用，权限管理集中，角色可重用         | 对于复杂权限需求灵活性不足，角色数量增加管理复杂 | 中小型企业，权限需求相对简单的系统 | 
@@ -94,7 +92,6 @@ p, alice, data1, read
 p, bob, data2, write
 ```
 
-
 ## 存储
 
 model 可以使用 model.conf，通过 `casbin.NewEnforcer("model.conf", ...)` 读取，也可以使用字符串，通过 model.NewModelFromString(text) 读取。
@@ -113,12 +110,77 @@ adapter interface:
 * ptype: It corresponds to p, g, g2, etc.
 * v0-v5: policy.csv 的6列（每列都是字符串）  --> 在用户表将uid赋予
 
+### ACL/RBAC 模式
+
 | id	 | ptype | 	v0           | 	v1	        | v2      | 	v3	 | v4	 | v5 |
 |-----|-------|---------------|-------------|---------|------|-----|----|
 | 1   | 	p    | 	data2_admin	 | data2       | read	   |
-| 2	  | p     | data2_admin   | data2	      | write		 |
-| 3   | g	    | alice         | data2_admin |         | 
+| 2   | p     | data2_admin   | data2	      | write		 |
+| 3   | g	    | alice         | data2_admin |         |
 
+```
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+```
+
+### RBAC with deny 模式
+
+| id	 | ptype | 	v0           | 	v1	        | v2      | 	v3	  | v4	 | v5 |
+|-----|-------|---------------|-------------|---------|-------|-----|----|
+| 1   | 	p    | 	data2_admin	 | data2       | read	   | allow |
+| 2   | p     | data2_admin   | data2	      | write		 | allow |
+| 3   | g	    | alice         | data2_admin |         | deny  |
+
+```
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act, eft
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+```
+
+### Restful 模式
+
+| id	 | ptype | 	v0           | 	v1	                   | v2            | 	v3	 | v4	 | v5 |
+|-----|-------|---------------|------------------------|---------------|------|-----|----|
+| 1   | 	p    | 	data2_admin	 | /alice_data/*          | GET	          |
+| 2   | p     | data2_admin   | /alice_data/resource1	 | POST		        |
+| 3   | g	    | alice         | /bob_data/*            | (GET)\|(POST) |
+
+```
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = r.sub == p.sub && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act)
+```
 
 ### 扩展存储
 
@@ -143,23 +205,27 @@ adapter interface:
 | 6  | 0   | sales  | 销售群    | g      |
 
 #### casbin_object
-| id | v             | 	name	 | created_at | 	updated_at	 | 
-|----|---------------|--------|------------|--------------| 
+| id | v             | 	name	 | created_at | 	updated_at	 |
+|----|---------------|--------|------------|--------------|
 | 1  | /api/v1/data1 | 数据源1   |            |              |
 | 2  | source        | 源数据    |            |              |
 
 #### casbin_policy
-
 group 通过查询 casbin_user 和 casbin_role 进行自动生成
-这里数据量小，act 直接使用字符串
+这里数据量小，act 直接使用字符串。虽然可以细化到Rest各种method，但是这样太复杂了，直接使用 ACL 控制 r/w/rw 即可
 
-| id | ptype | role     | 	objects | act     | created_at | 	updated_at	 |
-|----|-------|----------|----------|---------|------------|--------------|
-| 1  | p     | 2        | [1,2]    | read	   |  
-| 2  | p     | 2        | [2]	     | write		 |
-| 3  | p     | 3        | [2]      |         |
+> objects 在 load_policy.go 里会被拆分
+> r ==> read; w ==> write; rw ==> (read)|(write)
+
+| id | ptype | role | 	objects | act            | created_at | 	updated_at	 |
+|----|-------|------|----------|----------------|------------|--------------|
+| 1  | p     | 2    | [1,2]    | (GET)\|(POST)	 |  
+| 2  | p     | 2    | [2]	     | w              |
+| 3  | p     | 3    | [2]      | rw             |
 
 #### casbin_user
+user 会自动继承 role pid
+
 | uid | roles | 	  created_at | 	updated_at	 | 
 |-----|-------|---------------|--------------| 
 | 1   | [1,2] |               |              | 
