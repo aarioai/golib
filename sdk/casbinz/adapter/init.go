@@ -1,8 +1,8 @@
 package adapter
 
 import (
+	"context"
 	"fmt"
-	"github.com/aarioai/airis/aa/acontext"
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/golib/sdk/casbinz/adapter/entity"
 )
@@ -12,11 +12,11 @@ var (
 	DefaultGroupPtype  = "g"
 )
 
-func (a *Adapter) Init(ctx acontext.Context) {
+func (a *Adapter) Init(ctx context.Context) {
 	ae.PanicOn(a.createTables(ctx))
 }
 
-func (a *Adapter) createTables(ctx acontext.Context) *ae.Error {
+func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 	db := a.db()
 	const expectedTableNums = 4
 	var tableN int
