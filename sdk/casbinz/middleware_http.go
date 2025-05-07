@@ -8,10 +8,10 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/httpsvr"
 	"github.com/aarioai/golib/enumz"
-	"github.com/aarioai/golib/sdk/casbinz/adapter"
 	"github.com/aarioai/golib/sdk/casbinz/enum"
 	"github.com/aarioai/golib/sdk/casbinz/models"
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/persist"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"log"
@@ -133,7 +133,7 @@ func Roles(ictx iris.Context) []string {
 	return []string{strconv.FormatUint(uid, 10)}
 }
 
-func NewDefaultHttpMiddleware(a *adapter.Adapter) (*Middleware, error) {
+func NewDefaultHttpMiddleware(a persist.Adapter) (*Middleware, error) {
 	m := models.DefaultModel
 	enf, err := casbin.NewEnforcer(m, a)
 	if err != nil {
