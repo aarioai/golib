@@ -7,12 +7,15 @@ require (
 	github.com/aarioai/airis-driver v0.0.57
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
 	github.com/casbin/casbin/v2 v2.105.0
+	github.com/disintegration/imaging v1.6.2
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-querystring v1.1.0
 	github.com/kataras/iris/v12 v12.2.11
 	github.com/mssola/useragent v1.0.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/prometheus/client_golang v1.22.0
 	github.com/redis/go-redis/v9 v9.7.3
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.20
 	go.mongodb.org/mongo-driver v1.17.3
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0
@@ -80,6 +83,7 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.2.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
