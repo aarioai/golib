@@ -10,7 +10,7 @@ handlePrivateRepo(){
 
     git config --global --list
 
-    # 使用这个检测git能否访问私有库
+    # 使用这个检测git能否访问
     git ls-remote git@github.com:aarioai/golib.git
 
     # 删除某个配置

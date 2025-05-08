@@ -8,7 +8,7 @@ import (
 // 基于：点赞数、时间排序，本身就加入了时间，所以不用再联合 created_at 排序了
 // 缺点：需要周期（每小时或每天）对全部文章/评论等更新评分
 // https://www.ruanyifeng.com/blog/2012/02/ranking_algorithm_hacker_news.html
-func SimpleRank(likes uint, ) {
+func SimpleRank(likes uint) {
 
 }
 
@@ -22,7 +22,7 @@ func SimpleRank(likes uint, ) {
 // @param positive 点赞的人数
 // @param total 总反馈人数（正反馈+负反馈） total number of ratings
 // @confidence 默认为 95% 置信度
-// @return   (-1,1)   ==> 约等于  upvotes / total，
+// @return   (-1,1)   ==> 约等于  upvotes / total
 
 func LowerBound(upvotes, total uint, confidence float64) float64 {
 	if total == 0 || total < upvotes {
@@ -31,7 +31,7 @@ func LowerBound(upvotes, total uint, confidence float64) float64 {
 	n := float64(total)
 
 	// 平均值有3个标准差之内的范围。称为“68-95-99.7法则”或“经验法则”  95% 是经验值
-	z := 1.96 // quantile of the standard normal distrution, confidence=0.95 经验值
+	z := 1.96 // quantile of the standard normal distribution, confidence=0.95 经验值
 	if confidence != 0.0 && confidence != 0.95 {
 		z = StandardQuantile(confidence)
 		//z = math.Erfinv(1.0 - (1.0-confidence)/2.0) // 这个好像有问题，0.95的结果不是 1.96

@@ -35,6 +35,7 @@
         <method importPath="mime/multipart" receiver="File" name="Close" />
         <method importPath="mime/multipart" receiver="File" name="Seek" />
         <method importPath="io" receiver="ReadCloser" name="Close" />
+        <method importPath="os" receiver="*File" name="Seek" />
       </methods>
     </inspection_tool>
     <inspection_tool class="GoUnusedExportedFunction" enabled="false" level="WARNING" enabled_by_default="false" />
