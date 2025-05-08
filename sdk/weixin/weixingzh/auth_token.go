@@ -52,7 +52,7 @@ func (s *Service) GrantAccessToken(ctx context.Context, force bool) (AccessToken
 	}
 
 	var token AccessToken
-	statusCode, err := httpc.GetJson(&token, GrantAccessTokenURL, map[string]string{
+	statusCode, err := httpc.GetJson(ctx, &token, GrantAccessTokenURL, map[string]string{
 		"grant_type": "client_credential",
 		"appid":      s.appid,
 		"secret":     s.secret,

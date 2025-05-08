@@ -5,7 +5,7 @@ import (
 	"html/template"
 )
 
-type AuthResult struct {
+type Response struct {
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    int64  `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
@@ -13,7 +13,7 @@ type AuthResult struct {
 	Scope        string `json:"scope"`
 }
 
-func (r AuthResult) CheckError() error {
+func (r Response) CheckError() error {
 	if r.AccessToken == "" {
 		return errors.New("parse auth result failed")
 	}

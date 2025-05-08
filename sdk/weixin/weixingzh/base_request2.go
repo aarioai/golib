@@ -15,7 +15,7 @@ func (s *Service) forceGetWithToken2(ctx context.Context, target base.ResultInte
 	}
 	var body []byte
 
-	if _, body, err = httpc.Get(link, nil, headers...); err != nil {
+	if _, body, err = httpc.Get(ctx, link, nil, headers...); err != nil {
 		return err
 	}
 	return base.ParseResult2(body, target)
@@ -31,7 +31,7 @@ func (s *Service) forcePostWithToken2(ctx context.Context, target base.ResultInt
 		return err
 	}
 	var body []byte
-	if _, body, err = httpc.Post(link, data, headers...); err != nil {
+	if _, body, err = httpc.Post(ctx, link, data, headers...); err != nil {
 		return err
 	}
 	return base.ParseResult2(body, target)

@@ -1,6 +1,4 @@
-# 说明文档
-
-## 用户网页授权
+# 公众号H5授权获取user access_token
 > https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html
 
 1. 第一步：用户同意授权，获取code

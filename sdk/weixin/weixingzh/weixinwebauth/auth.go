@@ -1,7 +1,8 @@
 package weixinwebauth
 
 import (
-	"errors"
+	"context"
+	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/httpc"
 	"github.com/aarioai/golib/sdk/weixin/weixingzh/base"
 	"html/template"
@@ -22,20 +23,20 @@ const (
 
 // Auth 第二步：通过code换取网页授权access_token
 // 这个是特殊的网页授权access token (grant type: authorization_code)，不同于 weixingzh 里的基础API access token (grant type: client_credential)
-func (s *Service) Auth(code string) (AuthResult, error) {
+func (s *Service) Auth(ctx context.Context, code string) (Response, *ae.Error) {
 	params := map[string]string{
 		"appid":      s.appid,
 		"secret":     s.secret,
 		"code":       code,
 		"grant_type": "authorization_code",
 	}
-	_, body, err := httpc.Get(GrantAccessTokenUrl, params)
+	_, body, err := httpc.Get(ctx, GrantAccessTokenUrl, params)
 	if err != nil {
-		return AuthResult{}, err
+		return Response{}, NewError(err)
 	}
-	var result AuthResult
+	var result Response
 	_, err = base.ParseResult(body, &result)
-	return result, err
+	return result, NewError(err)
 }
 
 func parseHeadImage(url template.URL) template.URL {
@@ -48,9 +49,9 @@ func parseHeadImage(url template.URL) template.URL {
 	return url[0:p] + "/0"
 }
 
-func (s *Service) UserInfo(auth AuthResult) (UserInfo, error) {
+func (s *Service) UserInfo(ctx context.Context, auth Response) (UserInfo, *ae.Error) {
 	if auth.Scope != "snsapi_userinfo" {
-		return UserInfo{}, errors.New("weixin web auth get userinfo, scope must be snsapi_userinfo")
+		return UserInfo{}, NewE("weixin web auth get userinfo, scope must be snsapi_userinfo")
 	}
 
 	params := map[string]string{
@@ -59,21 +60,23 @@ func (s *Service) UserInfo(auth AuthResult) (UserInfo, error) {
 		"lang":         "zh_CN",
 	}
 
-	_, body, err := httpc.Get(GetUserInfoUrl, params)
+	_, body, err := httpc.Get(ctx, GetUserInfoUrl, params)
 	if err != nil {
-		return UserInfo{}, err
+		return UserInfo{}, NewError(err)
 	}
 	var result UserInfoResult
 	_, err = base.ParseResult(body, &result)
-
+	if err != nil {
+		return UserInfo{}, NewError(err)
+	}
 	result.HeadImg = parseHeadImage(result.HeadImg)
 	return result.UserInfo, nil
 }
 
-func (s *Service) Code2UserInfo(code string) (UserInfo, error) {
-	auth, err := s.Auth(code)
-	if err != nil {
-		return UserInfo{}, err
+func (s *Service) Code2UserInfo(ctx context.Context, code string) (UserInfo, *ae.Error) {
+	auth, e := s.Auth(ctx, code)
+	if e != nil {
+		return UserInfo{}, e
 	}
-	return s.UserInfo(auth)
+	return s.UserInfo(ctx, auth)
 }
