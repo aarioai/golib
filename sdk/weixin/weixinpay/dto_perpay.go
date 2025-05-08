@@ -2,6 +2,7 @@ package weixinpay
 
 import (
 	"github.com/aarioai/airis/aa/atype"
+	"github.com/aarioai/golib/typez"
 	"time"
 )
 
@@ -9,6 +10,7 @@ type PrepayRequest struct {
 	OrderBatch uint64      `json:"order_batch"` // 批次订单号
 	Total      atype.Money `json:"total"`       // 订单总额
 
+	Svc         typez.Svc  `json:"svc"`
 	PayerOpenid string     `json:"payer_openid"` // 支付者openid；APP不用传
 	Description string     `json:"description"`
 	TimeExpire  *time.Time `json:"time_expire"` // 订单失效时间，格式为rfc3339格式
