@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const prefix = "libsdk_weixinpay: "
+
 // Config 微信支付配置
 //
 //	https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_5.shtml
@@ -136,7 +138,7 @@ func New(app *aa.App, config Config) (*Service, error) {
 
 func (s *Service) NewError(msg string, a ...any) error {
 	msg = afmt.Sprintf(msg, a...)
-	return fmt.Errorf("weixin pay (mchid:%s): %s", s.Config.Mchid, msg)
+	return fmt.Errorf(prefix+"(mchid:%s): %s", s.Config.Mchid, msg)
 }
 
 func (s *Service) NewClient(ctx context.Context) (*core.Client, error) {

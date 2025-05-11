@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const prefix = "libsdk_auth: "
+
 type Service struct {
 	app *aa.App
 	loc *time.Location
@@ -32,30 +34,23 @@ func New(app *aa.App, redisConfigSection string) *Service {
 }
 
 func NewCode(code int, format string, args ...any) *ae.Error {
-	return ae.New(code, afmt.Sprintf("libsdk_auth: "+format, args...))
+	return ae.New(code, afmt.Sprintf(prefix+format, args...))
 }
 
 func NewE(format string, args ...any) *ae.Error {
-	return ae.NewE("libsdk_auth: "+format, args...)
+	return ae.NewE(prefix+format, args...)
 }
 
 func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
-	return ae.NewE("libsdk_auth: " + err.Error())
-}
-
-func panicE(msg string, e *ae.Error) {
-	panic("libsdk_auth: " + msg + " " + e.Text())
-}
-func panicMsg(msg string, args ...any) {
-	panic(afmt.Sprintf("libsdk_auth: "+msg, args...))
+	return ae.NewE(prefix + err.Error())
 }
 
 func panicOnEmpty(name, s string) {
 	if s != "" {
 		return
 	}
-	panic(fmt.Sprintf("libsdk_auth: configz.%s not set", name))
+	panic(fmt.Sprintf(prefix+"configz.%s not set", name))
 }

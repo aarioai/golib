@@ -9,6 +9,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const prefix = "libsdk_weixingzh: "
+
 type Service struct {
 	app    *aa.App
 	appid  string
@@ -28,8 +30,8 @@ func New(app *aa.App, appid string, secret string, redisCfgSection string) *Serv
 		secret: secret,
 
 		cacheCfgSection:        redisCfgSection,
-		cacheClientCredential:  fmt.Sprintf("sdk:weixingzh:appid:%s:client_credential", appid),
-		cacheJSSDKTicketPrefix: fmt.Sprintf("sdk:weixingzh:appid:%s:js_ticket", appid),
+		cacheClientCredential:  fmt.Sprintf("libsdk:weixingzh:appid:%s:client_credential", appid),
+		cacheJSSDKTicketPrefix: fmt.Sprintf("libsdk:weixingzh:appid:%s:js_ticket", appid),
 
 		WebAuth: weixinwebauth.New(app, appid, secret),
 	}
@@ -38,7 +40,7 @@ func New(app *aa.App, appid string, secret string, redisCfgSection string) *Serv
 func (s *Service) rdb() (*redis.Client, error) {
 	cli, e := driver.NewRedisPool(s.app, s.cacheCfgSection)
 	if e != nil {
-		return nil, errors.New("load redis client failed: " + e.Text())
+		return nil, errors.New(prefix + "load redis client failed: " + e.Text())
 	}
 	return cli, nil
 }

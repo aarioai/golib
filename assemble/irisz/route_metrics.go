@@ -14,13 +14,13 @@ import (
 
 var (
 	totalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "paycenter_requests_total",
-		Help: "Total number of paycenter HTTP requests",
+		Name: "requests_total",
+		Help: "Total number of HTTP requests",
 	}, []string{"path", "method", "status"})
 
 	requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Name:    "paycenter_request_duration_seconds",
-		Help:    "Duration of paycenter HTTP requests",
+		Name:    "request_duration_seconds",
+		Help:    "Duration of HTTP requests",
 		Buckets: prometheus.DefBuckets,
 	}, []string{"path", "method", "status"})
 )
@@ -28,7 +28,6 @@ var (
 func prometheusMiddleware(ictx iris.Context) {
 	start := time.Now()
 	path := ictx.Path()
-	// 开始执行其他
 	ictx.Next()
 	duration := time.Since(start).Seconds()
 	status := ictx.GetStatusCode()

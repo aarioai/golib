@@ -5,6 +5,8 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 )
 
+const prefix = "libsdk_weixinjsa: "
+
 type Service struct {
 	app    *aa.App
 	appid  string
@@ -20,12 +22,12 @@ func New(app *aa.App, appid string, secret string) *Service {
 }
 
 func NewE(format string, args ...any) *ae.Error {
-	return ae.NewE("lib_weixinjsaauth: "+format, args...)
+	return ae.NewE(prefix+format, args...)
 }
 
 func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
-	return ae.NewE("lib_weixinjsaauth: " + err.Error())
+	return ae.NewE(prefix + err.Error())
 }

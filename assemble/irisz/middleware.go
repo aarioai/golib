@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const prefix = "lib_irisz: "
+
 type Middleware struct {
 	app              *aa.App
 	loc              *time.Location
@@ -21,16 +23,16 @@ func New(app *aa.App, authRedisSection string) *Middleware {
 }
 
 func NewCode(code int, format string, args ...any) *ae.Error {
-	return ae.New(code, afmt.Sprintf("lib_irisz: "+format, args...))
+	return ae.New(code, afmt.Sprintf(prefix+format, args...))
 }
 
 func NewE(format string, args ...any) *ae.Error {
-	return ae.NewE("lib_irisz: "+format, args...)
+	return ae.NewE(prefix+format, args...)
 }
 
 func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
-	return ae.NewE("lib_irisz: " + err.Error())
+	return ae.NewE(prefix + err.Error())
 }

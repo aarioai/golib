@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const prefix = "libsdk_sms: "
+
 type Service struct {
 	app        *aa.App
 	loc        *time.Location
@@ -45,7 +47,7 @@ func (s *Service) checkInitReady() {
 	for {
 		select {
 		case <-ticker.C:
-			s.app.Log.Warn(context.Background(), "libsdk: sms not init yet")
+			s.app.Log.Warn(context.Background(), prefix+"not init yet")
 		case <-s.initSignal:
 			return
 		}
@@ -64,12 +66,12 @@ func (s *Service) WithAliyun(accessKey, accessSecret string, regionId ...string)
 }
 
 func NewE(format string, args ...any) *ae.Error {
-	return ae.NewE("libsdk_sms: "+format, args...)
+	return ae.NewE(prefix+format, args...)
 }
 
 func NewError(err error) *ae.Error {
 	if err == nil {
 		return nil
 	}
-	return ae.NewE("libsdk_sms: " + err.Error())
+	return ae.NewE(prefix + err.Error())
 }

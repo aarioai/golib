@@ -9,6 +9,8 @@ import (
 	"github.com/aarioai/airis/pkg/afmt"
 )
 
+const prefix = "libsdk_casbinz: "
+
 type Adapter struct {
 	app          *aa.App
 	mysqlSection string
@@ -27,12 +29,12 @@ func (a *Adapter) db() *mysqli.DB {
 }
 
 func NewAdapterError(msg string, args ...any) error {
-	return errors.New(afmt.Sprintf("sdk_casbinz: adapter "+msg, args...))
+	return errors.New(afmt.Sprintf(prefix+"adapter "+msg, args...))
 }
 
 func handleDriverError(e *ae.Error) error {
 	if e == nil || e.IsNotFound() {
 		return nil
 	}
-	return errors.New("sdk_casbinz: adapter " + e.Text())
+	return errors.New(prefix + "adapter " + e.Text())
 }
