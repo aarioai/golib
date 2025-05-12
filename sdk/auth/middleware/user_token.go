@@ -1,4 +1,4 @@
-package irisz
+package middleware
 
 import (
 	"github.com/aarioai/airis/aa/httpsvr/response"

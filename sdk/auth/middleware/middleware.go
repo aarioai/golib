@@ -1,4 +1,4 @@
-package irisz
+package middleware
 
 import (
 	"github.com/aarioai/airis/aa"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const prefix = "lib_irisz: "
+const prefix = "libsdk_auth: "
 
 type Middleware struct {
 	app              *aa.App
@@ -15,6 +15,7 @@ type Middleware struct {
 	authRedisSection string
 }
 
+// New 仅限于共享Redis内存的服务使用，否则应另写接口使用GRPC方式调用
 func New(app *aa.App, authRedisSection string) *Middleware {
 	return &Middleware{app: app,
 		loc:              app.Config.TimeLocation,
