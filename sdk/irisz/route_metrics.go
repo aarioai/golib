@@ -47,9 +47,8 @@ func postPing(ictx iris.Context) {
 	resp.Write(map[string]int64{"timestamp": ts})
 }
 
-func (w *Irisz) RouteMetrics(ir *iris.Application) {
-	ir.Use(prometheusMiddleware)
-	p := ir.Party("/")
+func (w *Irisz) RouteMetrics(p iris.Party) {
+	p.Use(prometheusMiddleware)
 	p.Head("/ping", response.StatusHandler(http.StatusOK))
 	p.Get("/ping", response.WriteHandler("PONG"))
 	p.Post("/ping", postPing)
