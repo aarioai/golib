@@ -1,7 +1,6 @@
 package irisz
 
 import (
-	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/httpsvr"
 	"github.com/aarioai/airis/aa/httpsvr/response"
 	"github.com/kataras/iris/v12"
@@ -48,7 +47,7 @@ func postPing(ictx iris.Context) {
 	resp.Write(map[string]int64{"timestamp": ts})
 }
 
-func RouteMetrics(app *aa.App, ir *iris.Application) {
+func (w *Irisz) RouteMetrics(ir *iris.Application) {
 	ir.Use(prometheusMiddleware)
 	p := ir.Party("/")
 	p.Head("/ping", response.StatusHandler(http.StatusOK))

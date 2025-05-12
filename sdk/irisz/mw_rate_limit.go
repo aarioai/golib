@@ -2,11 +2,10 @@ package irisz
 
 import (
 	"fmt"
-	"github.com/aarioai/airis/aa"
 	"github.com/aarioai/airis/aa/aconfig"
-	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/pkg/types"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/middleware/rate"
 	"strconv"
 	"strings"
@@ -28,25 +27,26 @@ func parseDurationConfig(c *aconfig.Config, keys []string) string {
 	}
 	return ""
 }
-func RateLimitMiddleware(p iris.Party, app *aa.App, sectionName string, t RateLimitType) iris.Party {
+
+func (w *Irisz) RateLimit(sectionName string, t RateLimitType) context.Handler {
 	keys := []string{
 		fmt.Sprintf("%s.%s_rate_limit", sectionName, t),
 		fmt.Sprintf("%s.rate_limit", sectionName),
 		fmt.Sprintf("app.%s_rate_limit", sectionName),
 		"app.rate_limit",
 	}
-	v := parseDurationConfig(app.Config, keys)
+	v := parseDurationConfig(w.app.Config, keys)
 	if v == "" {
-		return p
+		return nil
 	}
 
 	limits := strings.Split(v, ",")
 	limit, err := types.Atoi(limits[0])
-	ae.PanicOnErrors(err)
+	PanicOnErrors(err)
 	burst := limit // 默认桶的容量等于每秒消耗最高量，如果一直没有消费掉，则持续往桶里增加，超过桶上限的令牌丢弃
 	if len(limits) > 0 && limits[1] != "" {
 		burst, err = strconv.Atoi(limits[1])
-		ae.PanicOnErrors(err)
+		PanicOnErrors(err)
 	}
 	// 限流 Limit(limit 每秒放token数，即QPS, burst 令牌桶大小，即最大并发数)
 	// limit = 1000 = rate.Every(1 * time.Millisecond)   每毫秒放1个，即每秒1000个
@@ -57,9 +57,16 @@ func RateLimitMiddleware(p iris.Party, app *aa.App, sectionName string, t RateLi
 	if len(limits) == 4 {
 		every := types.ParseDuration(limits[2])
 		maxLifetime := types.ParseDuration(limits[3])
-		p.Use(rate.Limit(float64(limit), burst, rate.PurgeEvery(every, maxLifetime)))
+		return rate.Limit(float64(limit), burst, rate.PurgeEvery(every, maxLifetime))
+	}
+	return rate.Limit(float64(limit), burst)
+}
+
+func (w *Irisz) WithRateLimit(p iris.Party, sectionName string, t RateLimitType) iris.Party {
+	handler := w.RateLimit(sectionName, t)
+	if handler == nil {
 		return p
 	}
-	p.Use(rate.Limit(float64(limit), burst))
+	p.Use(handler)
 	return p
 }
