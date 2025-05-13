@@ -14,6 +14,7 @@
         <function importPath="errors" name="New" />
         <function importPath="github.com/aarioai/airis/aa/httpsvr/response" name="JsonE" />
         <function importPath="os" name="Remove" />
+        <function importPath="github.com/aarioai/airis/aa/httpsvr/response" name="JSON" />
       </functions>
       <methods>
         <method importPath="strings" receiver="*Builder" name="WriteByte" />
@@ -36,6 +37,7 @@
         <method importPath="mime/multipart" receiver="File" name="Seek" />
         <method importPath="io" receiver="ReadCloser" name="Close" />
         <method importPath="os" receiver="*File" name="Seek" />
+        <method importPath="github.com/kataras/iris/v12" receiver="*Context" name="JSONP" />
       </methods>
     </inspection_tool>
     <inspection_tool class="GoUnusedExportedFunction" enabled="false" level="WARNING" enabled_by_default="false" />

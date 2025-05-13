@@ -1,4 +1,4 @@
-package midiris
+package irisz
 
 import (
 	"github.com/aarioai/airis/aa/httpsvr/request"

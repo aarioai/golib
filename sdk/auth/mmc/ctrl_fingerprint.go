@@ -7,7 +7,7 @@ import (
 	"github.com/aarioai/airis/aa/httpsvr/request"
 	"github.com/aarioai/airis/aa/httpsvr/response"
 	"github.com/aarioai/golib/enumz"
-	"github.com/aarioai/golib/sdk/auth/midiris"
+	"github.com/aarioai/golib/sdk/irisz"
 	"github.com/aarioai/golib/typez"
 	"github.com/kataras/iris/v12"
 )
@@ -75,6 +75,6 @@ func (s *Service) AssertFingerprint(ictx iris.Context) {
 		response.JsonE(ictx, ae.New(ae.FailedDependency, "验证失败，请先双击同意协议，或联系技术人员处理"))
 		return
 	}
-	midiris.SetFingerprintServerTime(ictx, unixMs)
+	irisz.SetFingerprintServerTime(ictx, unixMs)
 	ictx.Next()
 }

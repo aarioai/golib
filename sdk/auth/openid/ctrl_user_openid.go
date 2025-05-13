@@ -5,7 +5,7 @@ import (
 	"github.com/aarioai/airis/aa/atype"
 	"github.com/aarioai/airis/aa/httpsvr"
 	"github.com/aarioai/golib/sdk/auth/dtoz"
-	"github.com/aarioai/golib/sdk/auth/midiris"
+	"github.com/aarioai/golib/sdk/irisz"
 	"github.com/kataras/iris/v12"
 )
 
@@ -14,7 +14,7 @@ func (s *Service) GrantUserOpenid(ictx iris.Context) {
 	r, resp, ctx := httpsvr.New(ictx)
 	defer resp.CloseWith(r)
 
-	svc, uid, _, ok := midiris.Uid(ictx)
+	svc, uid, _, ok := irisz.Uid(ictx)
 	if !ok {
 		resp.WriteE(ae.ErrorUnauthorized)
 		return

@@ -1,4 +1,4 @@
-package midiris
+package irisz
 
 import (
 	"github.com/aarioai/airis/aa/ae"
@@ -6,7 +6,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"strconv"
 )
- 
+
 func SetAg(ictx iris.Context, f string) bool {
 	_, ok := ictx.Values().Set(enumz.ParamAg, f)
 	return ok

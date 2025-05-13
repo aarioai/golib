@@ -1,4 +1,4 @@
-package irisz
+package middleware
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func parseDurationConfig(c *aconfig.Config, keys []string) string {
 	return ""
 }
 
-func (w *Irisz) RateLimit(sectionName string, t RateLimitType) context.Handler {
+func (w *Middleware) RateLimit(sectionName string, t RateLimitType) context.Handler {
 	keys := []string{
 		fmt.Sprintf("%s.%s_rate_limit", sectionName, t),
 		fmt.Sprintf("%s.rate_limit", sectionName),
@@ -62,7 +62,7 @@ func (w *Irisz) RateLimit(sectionName string, t RateLimitType) context.Handler {
 	return rate.Limit(float64(limit), burst)
 }
 
-func (w *Irisz) WithRateLimit(p iris.Party, sectionName string, t RateLimitType) iris.Party {
+func (w *Middleware) WithRateLimit(p iris.Party, sectionName string, t RateLimitType) iris.Party {
 	handler := w.RateLimit(sectionName, t)
 	if handler == nil {
 		return p

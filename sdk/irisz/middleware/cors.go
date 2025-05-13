@@ -1,4 +1,4 @@
-package irisz
+package middleware
 
 import (
 	"strings"

@@ -6,7 +6,7 @@ import (
 	"github.com/aarioai/golib/enumz"
 	"github.com/aarioai/golib/sdk/auth/configz"
 	"github.com/aarioai/golib/sdk/auth/dtoz"
-	"github.com/aarioai/golib/sdk/auth/midiris"
+	"github.com/aarioai/golib/sdk/irisz"
 	"github.com/aarioai/golib/typez"
 	"github.com/kataras/iris/v12"
 	"time"
@@ -68,12 +68,12 @@ func (s *Service) NewUserToken(ctx context.Context, svc typez.Svc, uid, vuid uin
 }
 
 func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, e *ae.Error) {
-	if atoken = midiris.AccessToken(ictx); atoken == "" {
+	if atoken = irisz.AccessToken(ictx); atoken == "" {
 		e = ae.ErrorUnauthorized
 		return
 	}
 	ctx := ictx.Request().Context()
-	di := midiris.DeviceInfo(ictx)
+	di := irisz.DeviceInfo(ictx)
 	var (
 		psid           string
 		ua             enumz.UA
@@ -106,14 +106,14 @@ func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid,
 // LoadUserAuth parse user authorization then set them into context
 func (s *Service) LoadUserAuth(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
 	var ok bool
-	if svc, uid, vuid, ok = midiris.Uid(ictx); ok {
+	if svc, uid, vuid, ok = irisz.Uid(ictx); ok {
 		return
 	}
 	svc, uid, vuid, _, _, e = s.ParseUserAuthorization(ictx)
 	if e != nil {
 		return
 	}
-	if ok = midiris.SetUid(ictx, svc, uid, vuid); !ok {
+	if ok = irisz.SetUid(ictx, svc, uid, vuid); !ok {
 		e = NewE("iris middleware set uid failed")
 	}
 	return
@@ -122,14 +122,14 @@ func (s *Service) LoadUserAuth(ictx iris.Context) (svc typez.Svc, uid, vuid uint
 // LoadUserAuthorization parse user authorization then set them into context
 func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, e *ae.Error) {
 	var ok bool
-	if svc, uid, vuid, ttl, atoken, ok = midiris.UserAuthorization(ictx); ok {
+	if svc, uid, vuid, ttl, atoken, ok = irisz.UserAuthorization(ictx); ok {
 		return
 	}
 	svc, uid, vuid, ttl, atoken, e = s.ParseUserAuthorization(ictx)
 	if e != nil {
 		return
 	}
-	if ok = midiris.SetUserAuthorization(ictx, svc, uid, vuid, ttl, atoken); !ok {
+	if ok = irisz.SetUserAuthorization(ictx, svc, uid, vuid, ttl, atoken); !ok {
 		e = NewE("iris middleware set user authorization failed")
 	}
 	return

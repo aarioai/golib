@@ -7,7 +7,7 @@ import (
 	"github.com/aarioai/airis/aa/httpsvr/request"
 	"github.com/aarioai/airis/aa/httpsvr/response"
 	"github.com/aarioai/golib/enumz"
-	"github.com/aarioai/golib/sdk/auth/configz"
+	"github.com/aarioai/golib/sdk/irisz"
 	"github.com/kataras/iris/v12"
 	"time"
 )
@@ -45,11 +45,12 @@ func parseCookies(ictx iris.Context) map[string]any {
 // DebugMyCookies 用于微信H5、小程序等调试
 func (s *Service) DebugMyCookies(ictx iris.Context) {
 	defer ictx.Next()
-	debugToken := request.QueryWild(ictx, enumz.ParamDebugToken)
-	if debugToken != configz.DebugToken {
-		response.JsonE(ictx, ae.ErrorPageExpired)
+
+	if debug := irisz.ClientDebug(ictx); !debug {
+		response.JsonE(ictx, ae.ErrorForbidden)
 		return
 	}
+
 	cookies := parseCookies(ictx)
 	response.JSON(ictx, cookies)
 }
@@ -57,9 +58,8 @@ func (s *Service) DebugMyCookies(ictx iris.Context) {
 func (s *Service) DebugMyCookiesJSONP(ictx iris.Context) {
 	defer ictx.Next()
 	callback := request.QueryWild(ictx, enumz.ParamCallback)
-	debugToken := request.QueryWild(ictx, enumz.ParamDebugToken)
-	if debugToken != configz.DebugToken {
-		response.JsonE(ictx, ae.ErrorPageExpired)
+	if debug := irisz.ClientDebug(ictx); !debug {
+		response.JsonE(ictx, ae.ErrorForbidden)
 		return
 	}
 	cookies := parseCookies(ictx)

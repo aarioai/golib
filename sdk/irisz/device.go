@@ -1,4 +1,4 @@
-package midiris
+package irisz
 
 import (
 	"errors"

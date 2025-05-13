@@ -4,21 +4,21 @@ import (
 	"github.com/aarioai/airis/aa/ae"
 	"github.com/aarioai/airis/aa/httpsvr/response"
 	"github.com/aarioai/golib/sdk/auth"
-	"github.com/aarioai/golib/sdk/auth/midiris"
+	"github.com/aarioai/golib/sdk/irisz"
 	"github.com/aarioai/golib/typez"
 	"github.com/kataras/iris/v12"
 )
 
 func (w *Middleware) parseUserAuth(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
 	var ok bool
-	if svc, uid, vuid, ok = midiris.Uid(ictx); ok {
+	if svc, uid, vuid, ok = irisz.Uid(ictx); ok {
 		return
 	}
 	svc, uid, vuid, _, _, e = w.parser(ictx)
 	if e != nil {
 		return
 	}
-	if ok = midiris.SetUid(ictx, svc, uid, vuid); !ok {
+	if ok = irisz.SetUid(ictx, svc, uid, vuid); !ok {
 		e = NewE("middleware set uid failed")
 	}
 	return
@@ -47,14 +47,14 @@ func (w *Middleware) MustLoadUserAuth(ictx iris.Context) (svc typez.Svc, uid, vu
 
 func (w *Middleware) parseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, accessToken string, e *ae.Error) {
 	var ok bool
-	if svc, uid, vuid, ttl, accessToken, ok = midiris.UserAuthorization(ictx); ok {
+	if svc, uid, vuid, ttl, accessToken, ok = irisz.UserAuthorization(ictx); ok {
 		return
 	}
 	svc, uid, vuid, ttl, accessToken, e = w.parser(ictx)
 	if e != nil {
 		return
 	}
-	if ok = midiris.SetUserAuthorization(ictx, svc, uid, vuid, ttl, accessToken); !ok {
+	if ok = irisz.SetUserAuthorization(ictx, svc, uid, vuid, ttl, accessToken); !ok {
 		e = NewE("middleware set uid failed")
 	}
 	return
