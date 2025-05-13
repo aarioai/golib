@@ -35,6 +35,8 @@ const (
 	IctxParamUid                   = "Uid"
 	IctxParamVuid                  = "Vuid"
 	IctxParamSvc                   = "Svc"
+	IctxUserTokenTTL               = "UserTokenTTL"
+	IctxUserToken                  = "UserToken"
 
 	IctxParamTokenByT3 = "TokenByT3"
 	////IctxParamAImageXhost = "AImageXhost"

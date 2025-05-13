@@ -103,8 +103,8 @@ func (s *Service) ParseUserAuthorization(ictx iris.Context) (svc typez.Svc, uid,
 	return
 }
 
-// LoadUserAuthorization parse user authorization then set them into context
-func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
+// LoadUserAuth parse user authorization then set them into context
+func (s *Service) LoadUserAuth(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, e *ae.Error) {
 	var ok bool
 	if svc, uid, vuid, ok = midiris.Uid(ictx); ok {
 		return
@@ -114,10 +114,27 @@ func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, 
 		return
 	}
 	if ok = midiris.SetUid(ictx, svc, uid, vuid); !ok {
-		return 0, 0, 0, NewE("iris middleware set uid failed")
+		e = NewE("iris middleware set uid failed")
 	}
 	return
 }
+
+// LoadUserAuthorization parse user authorization then set them into context
+func (s *Service) LoadUserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, e *ae.Error) {
+	var ok bool
+	if svc, uid, vuid, ttl, atoken, ok = midiris.UserAuthorization(ictx); ok {
+		return
+	}
+	svc, uid, vuid, ttl, atoken, e = s.ParseUserAuthorization(ictx)
+	if e != nil {
+		return
+	}
+	if ok = midiris.SetUserAuthorization(ictx, svc, uid, vuid, ttl, atoken); !ok {
+		e = NewE("iris middleware set user authorization failed")
+	}
+	return
+}
+
 func (s *Service) UserLogout(ctx context.Context, svc typez.Svc, uid uint64, ua enumz.UA) {
 	// 废除之前的 factor
 	s.h.IncrUserTokenFactor(ctx, svc, uid, ua)

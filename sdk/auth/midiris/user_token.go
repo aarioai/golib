@@ -60,6 +60,32 @@ func Uid(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ok bool) {
 	return svc, uid, vuid, vuid > 0
 }
 
+func SetUserAuthorization(ictx iris.Context, svc typez.Svc, uid, vuid uint64, ttl int64, atoken string) bool {
+	if ttl == 0 || atoken == "" {
+		return false
+	}
+	ok := SetUid(ictx, svc, uid, vuid)
+	if !ok {
+		return false
+	}
+	if _, ok = ictx.Values().Set(enumz.IctxUserTokenTTL, ttl); !ok {
+		return false
+	}
+	_, ok = ictx.Values().Set(enumz.IctxUserToken, atoken)
+	return ok
+}
+
+func UserAuthorization(ictx iris.Context) (svc typez.Svc, uid, vuid uint64, ttl int64, atoken string, ok bool) {
+	svc, uid, vuid, ok = Uid(ictx)
+	if !ok {
+		return
+	}
+	ttl, _ = ictx.Values().GetInt64(enumz.IctxUserTokenTTL)
+	atoken = ictx.Values().GetString(enumz.IctxUserToken)
+	ok = ttl > 0 && atoken != ""
+	return
+}
+
 //func ParseUserOpenid(app *aa.App, ictx iris.Context, uid uint64) (appid string, svc typez.Svc, e *ae.Error) {
 //	//ctx.URLParam("lastname") == ctx.Request().URL.Query().Get("lastname")
 //	openid := ictx.GetHeader(enumz.HeaderOpenid)
