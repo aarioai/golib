@@ -52,9 +52,9 @@ func (s *Service) AssertFingerprint(ictx iris.Context) {
 		ictx.Next()
 		return
 	}
-	fingerprint := ictx.GetHeader(enumz.HeaderMmcFingerprint)
+	fingerprint := ictx.GetHeader(enumz.HeaderMMCFingerprint)
 	if fingerprint == "" {
-		response.JsonE(ictx, ae.NewBadParam(enumz.HeaderMmcFingerprint))
+		response.JsonE(ictx, ae.NewBadParam(enumz.HeaderMMCFingerprint))
 		return
 	}
 
