@@ -9,7 +9,7 @@ import (
 	"github.com/aarioai/airis/pkg/afmt"
 )
 
-const prefix = "libsdk_casbinz: "
+const prefix = "libsdk_casbinz:adapter: "
 
 type Adapter struct {
 	app          *aa.App

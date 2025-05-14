@@ -18,25 +18,26 @@ func (a *Adapter) Init(ctx context.Context) {
 
 func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 	db := a.db()
-	const expectedTableNums = 4
 	var tableN int
-	obj := entity.Object{}
-	policy := entity.Policy{}
-	role := entity.Role{}
-	user := entity.User{}
+	obj := entity.Object{}.Table()
+	policy := entity.Policy{}.Table()
+	role := entity.Role{}.Table()
+	user := entity.User{}.Table()
+	expectedTables := []any{obj, policy, role, user}
 	qs := fmt.Sprintf(`
 		SELECT COUNT(*) FROM information_schema.TABLES
 			WHERE TABLE_SCHEMA='%s' AND TABLE_NAME IN (?, ?, ?, ?)
 	`, db.Schema)
-	e := db.ScanArgs(ctx, qs, []any{obj.Table(), policy.Table(), role.Table(), user.Table()}, &tableN)
+	e := db.ScanArgs(ctx, qs, expectedTables, &tableN)
 	if e != nil {
 		return e
 	}
 
-	if tableN != expectedTableNums {
+	if tableN == len(expectedTables) {
 		return nil
 	}
-
+	a.app.Log.Info(ctx, prefix+"schema %s create tables: %s, %s, %s, %s", db.Schema, obj, policy, role, user)
+	
 	tx, e := db.Begin(ctx, nil)
 	if e != nil {
 		return e
@@ -53,7 +54,7 @@ func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 		    PRIMARY KEY (id),
 	  		UNIQUE INDEX u_v (v)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-	`, obj.Table())
+	`, obj)
 	if e = tx.Exec(ctx, qsObj); e != nil {
 		a.app.Check(ctx, tx.Rollback())
 		return e
@@ -70,7 +71,7 @@ func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 	  		updated_at DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 		    PRIMARY KEY (id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-	`, policy.Table())
+	`, policy)
 	if e = tx.Exec(ctx, qsPolicy); e != nil {
 		a.app.Check(ctx, tx.Rollback())
 		return e
@@ -90,7 +91,7 @@ func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 		    PRIMARY KEY (id),
 	  		UNIQUE INDEX u_v0 (v0)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-	`, role.Table())
+	`, role)
 	if e = tx.Exec(ctx, qsRole); e != nil {
 		a.app.Check(ctx, tx.Rollback())
 		return e
@@ -104,7 +105,7 @@ func (a *Adapter) createTables(ctx context.Context) *ae.Error {
 	  		updated_at DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 		    PRIMARY KEY (id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-	`, user.Table())
+	`, user)
 	if e = tx.Exec(ctx, qsUser); e != nil {
 		a.app.Check(ctx, tx.Rollback())
 		return e
