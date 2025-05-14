@@ -19,9 +19,9 @@ func postPing(ictx iris.Context) {
 	resp.Write(map[string]int64{"timestamp": ts})
 }
 
-func WithPing(p iris.Party) iris.Party {
-	p.Head("/ping", response.StatusHandler(http.StatusOK))
-	p.Get("/ping", response.WriteHandler("PONG"))
-	p.Post("/ping", postPing)
+func (p *Party) WithPing() *Party {
+	p.p.Head("/ping", response.StatusHandler(http.StatusOK))
+	p.p.Get("/ping", response.WriteHandler("PONG"))
+	p.p.Post("/ping", postPing)
 	return p
 }

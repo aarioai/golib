@@ -33,8 +33,8 @@ func prometheusMiddleware(ictx iris.Context) {
 	requestDuration.WithLabelValues(ictx.Method(), path, http.StatusText(status)).Observe(duration)
 }
 
-func WithMetrics(p iris.Party) iris.Party {
-	p.Use(prometheusMiddleware)
-	p.Get("/metrics", iris.FromStd(promhttp.Handler()))
+func (p *Party) WithPrometheusMetrics() *Party {
+	p.p.Use(prometheusMiddleware)
+	p.p.Get("/metrics", iris.FromStd(promhttp.Handler()))
 	return p
 }
