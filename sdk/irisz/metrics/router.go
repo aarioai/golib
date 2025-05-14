@@ -13,3 +13,7 @@ func New(p iris.Party) *Party {
 func (p *Party) WithAll() *Party {
 	return p.WithPing().WithPrometheusMetrics()
 }
+
+func (p *Party) Party() iris.Party {
+	return p.p
+}

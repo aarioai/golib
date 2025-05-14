@@ -27,9 +27,7 @@ func AccessToken(ictx iris.Context) string {
 	return s[p+1:]
 }
 
-func ViewOnLogout(r *request.Request) bool {
-	if cookie, err := r.Cookie(enumz.ParamLogout); err == nil {
-		return cookie.Value == "1"
-	}
-	return false
+func IsLogout(ictx iris.Context) bool {
+	cookie := ictx.GetCookie(enumz.ParamLogout)
+	return cookie == "1" || cookie == "true"
 }
