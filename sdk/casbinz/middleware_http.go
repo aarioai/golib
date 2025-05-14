@@ -11,6 +11,7 @@ import (
 	"github.com/aarioai/golib/sdk/casbinz/enum"
 	"github.com/aarioai/golib/sdk/casbinz/models"
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -134,7 +135,10 @@ func Roles(ictx iris.Context) []string {
 }
 
 func NewDefaultHttpMiddleware(a persist.Adapter) (*Middleware, error) {
-	m := models.DefaultModel
+	m, err := model.NewModelFromString(models.DefaultModel)
+	if err != nil {
+		return nil, err
+	}
 	enf, err := casbin.NewEnforcer(m, a)
 	if err != nil {
 		return nil, err
