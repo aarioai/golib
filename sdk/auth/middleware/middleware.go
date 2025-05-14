@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const prefix = "libsdk_auth: "
+const prefix = "libsdk_auth:middleware "
 
 type Middleware struct {
 	app           *aa.App
@@ -51,4 +51,8 @@ func NewError(err error) *ae.Error {
 		return nil
 	}
 	return ae.NewE(prefix + err.Error())
+}
+
+func Panic(format string, args ...any) {
+	panic(prefix + afmt.Sprintf(format, args...))
 }
